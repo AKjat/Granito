@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="138" height="138" viewBox="0 0 138 138">
+  <defs>
+    <filter id="Rectangle_14" x="0" y="0" width="138" height="138" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="arrow-right" transform="translate(9 6)">
+    <g transform="matrix(1, 0, 0, 1, -9, -6)" filter="url(#Rectangle_14)">
+      <rect id="Rectangle_14-2" data-name="Rectangle 14" width="120" height="120" rx="20" transform="translate(9 6)" fill="#fff"/>
+    </g>
+    <g id="Polygon_2" data-name="Polygon 2" transform="translate(85.793 36.31) rotate(90)" fill="#707070">
+      <path d="M 46.51075744628906 40.2931022644043 L 0.8685634732246399 40.2931022644043 L 23.68965530395508 0.9956425428390503 L 46.51075744628906 40.2931022644043 Z" stroke="none"/>
+      <path d="M 23.68965530395508 1.991291046142578 L 1.737117767333984 39.7931022644043 L 45.64218139648438 39.7931022644043 L 23.68965530395508 1.991291046142578 M 23.68965530395508 3.814697265625e-06 L 47.37930679321289 40.7931022644043 L -3.814697265625e-06 40.7931022644043 L 23.68965530395508 3.814697265625e-06 Z" stroke="none" fill="#707070"/>
+    </g>
+  </g>
+</svg>

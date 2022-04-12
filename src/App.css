@@ -1,4 +1,33 @@
-.App {
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* !! Button End Icon */
+.css-155nyw6-MuiButton-endIcon {
+    display: inherit;
+    margin-right: -4px;
+    margin-left: 4px !important;
+}
+
+a {
+  text-decoration: none;
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* .App {
   text-align: center;
 }
 
@@ -35,4 +64,4 @@
   to {
     transform: rotate(360deg);
   }
-}
+} */
