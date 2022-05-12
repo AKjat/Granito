@@ -42,7 +42,7 @@ export default function BreadCrumbs() {
           icon={<HomeIcon fontSize="small" />}
         />
         <StyledBreadcrumb component={Link}
-          to='/products' label="Products" />
+          to='/products/all' label="Products" />
         <StyledBreadcrumb
           label="Filter"
         />

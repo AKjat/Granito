@@ -11,8 +11,33 @@ const useStyles = makeStyles((theme) => ({
   },
   capitalize: {
     textTransform: 'uppercase'
+  },
+  root: {
+    marginTop: theme.spacing(1)
+  },
+  textBox: {
+    backgroundColor: "rgba(144, 143, 144, 0.51)",
+    borderRadius: "20px 20px 0 0",
+    padding: theme.spacing(1), 
   }
 }));
+
+// @keyframes slideInFromLeft {
+//   0% {
+//     transform: translateX(-100%);
+//   }
+//   100% {
+//     transform: translateX(0);
+//   }
+// }
+
+// header {  
+//   /* This section calls the slideInFromLeft animation we defined above */
+//   animation: 1s ease-out 0s 1 slideInFromLeft;
+  
+//   background: #333;
+//   padding: 30px;
+// }
 const ImgSlider = () => {
   const classes = useStyles();
   return (
@@ -21,38 +46,39 @@ const ImgSlider = () => {
         <Carousel.Item className={classes.imgB} interval={1000}>
           <img
             className="d-block w-100"
-            src="img/p4.jpg"
+            src="img/product/NewGold/1.jpg"
             alt="First slide"
             height={400}
           />
-          <Carousel.Caption>
-            <Grid container alignItems='center' justifyContent='space-between' spacing={1}>
+          <Carousel.Caption className={classes.textBox}>
+            <Grid container alignItems='center' justifyContent='space-between' spacing={1} >
               <Grid item>
             <p className={classes.capitalize}>An Excellence that realizes dreams</p>
             <h1 className={classes.capitalize}> Always in the pursuit of the Impossible </h1>
               </Grid>
               <Grid item>
-                <Button variant="outlined" LinkComponent={ Link } to='/products'> See Our Products </Button>
+                <Button variant="contained"  LinkComponent={ Link } to='/products'> See Our Products </Button>
               </Grid>
             </Grid>
           </Carousel.Caption>
         </Carousel.Item>
         <Carousel.Item className={classes.imgB} interval={1000}>
+          
           <img
             className="d-block w-100"
-            src="img/product/p5.jpg"
+            src="img/product/alaskagold/1.jpg"
             alt="Second slide"
             height={400}
           />
 
-          <Carousel.Caption>
-          <Grid container alignItems='center' justifyContent='space-between' spacing={1}>
+          <Carousel.Caption className={classes.textBox}>
+          <Grid container alignItems='center' justifyContent='space-between' spacing={1} >
               <Grid item>
             <p className={classes.capitalize}>The most astonishing materials in unusual colours & designs </p>
             <h1 className={classes.capitalize}> Witness Mother nature's finest creations </h1>
               </Grid>
               <Grid item>
-                <Button variant="outlined" LinkComponent={ Link } to='/products'> See Our Products </Button>
+                <Button variant="contained" LinkComponent={ Link } to='/products'> See Our Products </Button>
               </Grid>
             </Grid>
           </Carousel.Caption>
@@ -60,13 +86,13 @@ const ImgSlider = () => {
         <Carousel.Item className={classes.imgB} interval={1000}>
           <img
             className="d-block w-100"
-            src="img/product/p3.jpg"
+            src="img/product/red/1.jpg"
             alt="Third slide"
             height={400}
           />
 
-          <Carousel.Caption>
-          <Grid container alignItems='center' justifyContent='space-between' spacing={1}>
+          <Carousel.Caption className={classes.textBox}>
+          <Grid container alignItems='center' justifyContent='space-between' spacing={1} >
               <Grid item>
               <p className={classes.capitalize}>
               Celebrate the luxury of nature and timeless legacy with our natural stone collection
@@ -74,7 +100,7 @@ const ImgSlider = () => {
             <h1 className={classes.capitalize}>The Bliss of nature with a dash of splendor</h1>
               </Grid>
               <Grid item>
-                <Button variant="outlined" LinkComponent={ Link } to='/products'> See Our Products </Button>
+                <Button variant="contained" LinkComponent={ Link } to='/products'> See Our Products </Button>
               </Grid>
             </Grid>
             

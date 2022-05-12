@@ -1,12 +1,12 @@
 const CList = [
     {
-        heading: 'Indian Marbles',
+        heading: 'Marble',
         subheading: ['White Marbles', "Makrana Marbles", "Brown Marbles", "Pink Marbles"]
     },
-    {
-        heading: 'Imported Marbles',
-        subheading: ['Creamy Range', "Darkling Range", "Italian Marbles", "Milky Range"]
-    },
+    // {
+    //     heading: 'Imported Marbles',
+    //     subheading: ['Creamy Range', "Darkling Range", "Italian Marbles", "Milky Range"]
+    // },
     {
         heading: 'Granite',
         subheading: ['Black Granites', "White Granites", "Brown Granites", "Gold Granites", "Green Granites", "Grey Granites", "Red Granites"]

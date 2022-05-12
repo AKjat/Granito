@@ -16,18 +16,24 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import PersonIcon from "@mui/icons-material/Person";
 import { Link } from "react-router-dom";
-import MenuButton from "../Ui/MenuButton";
+import MobileAppbar from '../mobileNavigation/MobileAppbar';
 
-import SearchSection from "./search/SearchSection";
-import SearchAppbar from "./search/SearchAppbar";
-import SearchBar from "./search/SearchBar";
 import NewSearch from "./search/NewSearch";
-import HoverMenu from "../Ui/new/HoverMenu";
+
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { useSelector } from "react-redux";
+import PhoneIcon from '@mui/icons-material/Phone';
 
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    [theme.breakpoints.down("md")]: {
+      height: "70px",
+    },
+    [theme.breakpoints.up("md")]: {
+      height: "80px",
+    },
+  },
   hide: {
     [theme.breakpoints.down("md")]: {
       display: "none",
@@ -36,14 +42,37 @@ const useStyles = makeStyles((theme) => ({
       display: "block",
     },
   },
+  hideD: {
+    [theme.breakpoints.down("md")]: {
+      display: "block",
+    },
+    [theme.breakpoints.up("md")]: {
+      display: "none",
+    },
+  },
+  logoBox: {
+    [theme.breakpoints.down("md")]: {
+      height: "40px",
+    },
+    [theme.breakpoints.up("md")]: {
+      height: "60px",
+    },
+    "& img": {
+      height: "100%",
+      width: "100%",
+      objectFit: "contain"
+    }
+  }
 }));
 const Header = () => {
+  // const isLoggedIn = useSelector(state=>state.login.isloggedIn)
+  
   const classes = useStyles();
   const totalCartItems = useSelector(state=> state.cart.totalQuantity)
-  console.log(totalCartItems)
+  
   return (
     <AppBar elevation={5} color="secondary" position="sticky">
-      <Toolbar sx={{ height: "80px" }}>
+      <Toolbar className={classes.root}>
         <Grid
           container
           spacing={2}
@@ -53,9 +82,12 @@ const Header = () => {
           justifyContent="space-between"
           alignItems="center"
         >
-          <Grid component={Link} to="/" item xs={1} sm={2} md={1} lg={1}>
-            <Box >
-            <img height={60} src="img/logo/logo1.png" alt="" />
+          <Grid item xs={2} className={classes.hideD}>
+              <MobileAppbar />
+          </Grid>
+          <Grid component={Link} to="/" item xs={3} sm={3} md={2}  lg={1}>
+            <Box className={classes.logoBox}>
+            <img style={{height: "100%", width: "100%", objectFit: "contain"}} src="/img/logo/logo1.png" alt="" />
             </Box>
           </Grid>
           <Grid item   xs={3} sm={3} md={3} lg={4}>
@@ -67,18 +99,11 @@ const Header = () => {
             </Box>
           </Grid>
 
-          <Grid className={classes.hide}  item  xs={1} lg={1}>
-            <Box marginLeft={0}  >
-              {/* {<HoverMenu/>} */}
-              {/* <MenuButton /> */}
-            </Box>
-          </Grid>
-
           <Grid className={classes.hide} item xs={1} lg={1}>
             <Box>
             <Button
                 component={Link}
-                to="/"
+                to="/login"
                 variant="contained"
                 color="primary"
                 size="small"
@@ -90,8 +115,9 @@ const Header = () => {
           </Grid>
           <Grid className={classes.hide} item xs={1} lg={1}>
               <Box>
-              <Badge badgeContent={totalCartItems} color="primary">
-              <Button
+                <Badge badgeContent={totalCartItems} color="primary">
+                {/* { isLoggedIn?  */}
+                <Button
                 component={Link}
                 to="/cart"
                 size="small"
@@ -99,21 +125,27 @@ const Header = () => {
                 endIcon={<LocalShippingIcon />}
               >
                 Truck
-              </Button>
-              </Badge>
+                </Button>
+                {/* :<Button
+                component={Link}
+                to="/login"
+                size="small"
+                variant="outlined"
+                endIcon={<LocalShippingIcon />}
+              >
+                Truck
+                </Button>} */}
+                </Badge>
               </Box>
             </Grid> 
           
-          <Grid item xs={1} lg={1} marginRight={1} >
-              <Box>
-              <Tooltip title="Notifications">
-                <IconButton>
-                  <Badge badgeContent={4} color="primary">
-                    <NotificationsIcon />
-                  </Badge>
-                </IconButton>
-              </Tooltip>
-              </Box>
+          <Grid item xs={2}  marginRight={1} >
+                <Box className={classes.hide}>
+                <Button  variant="outlined" startIcon={<PhoneIcon/>} size="small">Call Now</Button>
+                </Box>
+                <Box  className={classes.hideD}>
+                <IconButton color="primary" ><PhoneIcon/></IconButton>
+                </Box>
             </Grid>
 
          

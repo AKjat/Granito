@@ -1,10 +1,13 @@
-import { Box, Grid, IconButton, Typography, Divider } from "@mui/material";
+import { Box, Grid, IconButton, Typography, Divider, CardActionArea } from "@mui/material";
 import React, { useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { makeStyles } from "@mui/styles";
 import { useDispatch, useSelector } from "react-redux";
 import { cartActions } from "../../redux";
 import RefreshIcon from '@mui/icons-material/Refresh';
+import { Link } from "react-router-dom";
+import { baseURL } from "../../api/baseURL";
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
   hideD: {
@@ -26,12 +29,27 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SingleCart = ({ d }) => {
-  const cart = useSelector((state)=> state.cart.itemList)
   const dispatch = useDispatch();
-  
-  const [value, setValue] = useState(d.quantity);
-  let val = parseFloat(value)
+  const [product, setProduct] = useState()
   const id = d.id
+  const [value, setValue] = useState(0);
+  React.useEffect(() => { 
+    getProduct()
+    
+  }, [d]);
+
+  const getProduct = () => {
+    axios.get(`products/${id}`)
+    .then((response)=>{
+      
+      const product = response.data
+      setProduct(product)
+      setValue(product.quantity)
+    })
+  }
+  
+  let val = parseFloat(value)
+  console.log(value, "valueQuantity")
   const setChange = (t) => {
     setValue(t.value);
     dispatch(cartActions.setQuantity({
@@ -46,19 +64,22 @@ const SingleCart = ({ d }) => {
  
   
   const handleRemoveCart = () => {
-    dispatch(cartActions.removeCart(d.id))
+    dispatch(cartActions.removeCart(id))
   }
- 
+  const totalPrice = product?.quantity*product?.price
+
+ console.log(totalPrice, "product")
+//  console.log(product.quantity, "producQuantt")
   return (
     <>
       <Box className={classes.hideD}>
         <Grid container marginTop={1} spacing={1} padding={1}>
           <Grid item xs={4}>
-            <Box sx={{ height: "150px" }}>
-              <img style={{ objectFit: "cover", width: "100%", height: "100%" }} src={d.image} alt="Cart" />
-              
+            <Box sx={{ height: "150px", }} component={Link} to={`/products/${id}`}>
+              <img style={{ objectFit: "cover", width: "100%", height: "100%",  borderRadius:10 }} src={product?.images[0]?.image} alt="Cart" />
             </Box>
           </Grid>
+          
           <Grid
             item
             xs={6}
@@ -66,38 +87,47 @@ const SingleCart = ({ d }) => {
             flexDirection="column"
             justifyContent="space-between"
           >
-            <Box>
-              <Typography>{d.name}</Typography>
+            <Box >
+              <Typography>{product?.name}</Typography>
             </Box>
 
             <Box display="flex" justifyContent="space-between">
+              <Typography variant="subtitle2">Price:</Typography>
               <Typography variant="subtitle2" color="green">
               ₹{d.price}
               </Typography>
-              <Box display="flex" justifyContent="space-between">
+              <Typography variant="caption" > /sq foot  </Typography>
+              
+            </Box>
+            <Box display="flex" alignItems="center" justifyContent="space-between" >
+            <Typography variant="subtitle2">Quantity: </Typography>
+              
+              <input
+                type="text"
+                style={{ width: "40%" }}
+                value={value}
+                onChange={(e) => setChange(e.target)}
+                disabled={true}
+              />
+              
+            </Box>
+            <Box display="flex" justifyContent="space-between">
                 <Typography variant="subtitle2">SubTotal:</Typography>
                 <Typography variant="subtitle2" color="green">
                 ₹{d.totalPrice}
                   {/* ${d.price * value} */}
                 </Typography>
               </Box>
-            </Box>
-            <Box>
-              <input
-                type="number"
-                style={{ width: "40%" }}
-                value={value}
-                onChange={(e) => setChange(e.target)}
-                
-              />
-              
-            </Box>
           </Grid>
           <Grid item xs={2} display="flex" flexDirection="column" justifyContent="space-between">
             <IconButton onClick={handleRemoveCart}>
               <CloseIcon color="error" />
             </IconButton>
-            
+            {/* <Box>
+              <IconButton>
+                <Typography variant="h5"></Typography>
+              </IconButton>
+            </Box> */}
           </Grid>
         </Grid>
         <Divider />
@@ -111,22 +141,23 @@ const SingleCart = ({ d }) => {
                 <CloseIcon color="error" />
               </IconButton>
             </Box>
-            <Box height={40} width={60}>
+            <Box height={40} width={60} component={Link} to={`/products/${id}`}>
               <img
                 style={{ objectFit: "contain", width: "100%", height: "100%" }}
-                src={d.image}
+                src={product?.images[0]?.image}
                 alt=""
               />
             </Box>
           </Grid>
           <Grid item xs={3}>
-            <Typography variant="body1"> {d.name} </Typography>
+            <Typography variant="body1"> {product?.name} </Typography>
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={2} display="flex" alignItems="center" justifyContent="flex-start">
             <Typography variant="body1" color="green">
               {" "}
-              ₹{d.price}{" "}
+              ₹{product?.price}{" "}
             </Typography>
+            
           </Grid>
           <Grid item xs={3}>
             <input
@@ -135,12 +166,14 @@ const SingleCart = ({ d }) => {
               style={{ width: "40%" }}
               value={value}
               onChange={(e) => setChange(e.target)}
+              disabled
             />
+            
           </Grid>
           <Grid item xs={2}>
             <Typography variant="body1" color="green">
               {" "}
-              ₹{d.totalPrice}
+              ₹{totalPrice}
               {/* ${d.price * value}{" "} */}
             </Typography>
             

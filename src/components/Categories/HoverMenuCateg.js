@@ -47,6 +47,9 @@ const HoverMenuCateg = (props) => {
   };
   //   props.d.subheading.map((heading)=>{console.log(heading)})
   //   console.log(props.d.subheading)
+  const filter = (e) => {
+    console.log(e.target.outerText)
+  }
   return (
     <ThemeProvider theme={theme2}>
       <List
@@ -56,13 +59,13 @@ const HoverMenuCateg = (props) => {
         disablePadding
       >
         <ListItemButton
-        
           ref={popoverAnchor}
           aria-owns="mouse-over-popover"
           aria-haspopup="true"
           
           // onClick={openedPopover ? popoverLeave : popoverEnter}
           onMouseEnter={popoverEnter}
+          onClick={popoverEnter}
           onMouseLeave={popoverLeave}
           //   endIcon={openedPopover ? <ExpandLess /> : <ExpandMore />}
         >
@@ -95,11 +98,12 @@ const HoverMenuCateg = (props) => {
         >
           <List component="div" disablePadding>
             {props.d.subheading.map((c, index) => (
-              <ListItemButton key={index} sx={{}} onClick={()=>props.filterItem('marble')}>
-                <ListItemIcon sx={{ minWidth: "12px" }}>
+              <ListItemButton key={index} sx={{}}  >
+                {/* onClick={()=>props.filterItem('marble')} */}
+                <ListItemIcon sx={{ minWidth: "12px" }} >
                   <ArrowRightIcon />
                 </ListItemIcon>
-                <ListItemText secondary={c} />
+                <ListItemText secondary={c} onClick={(e)=>filter(e)} />
               </ListItemButton>
             ))}
           </List>

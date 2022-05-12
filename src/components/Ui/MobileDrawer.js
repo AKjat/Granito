@@ -1,33 +1,39 @@
 import * as React from 'react';
+import {useEffect} from "react";
+import axios from "axios";
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
-import { Badge, Grid, IconButton } from '@mui/material';
+import { Badge, ButtonGroup, Collapse, Grid, IconButton, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import {Link} from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import HomeIcon from '@mui/icons-material/Home';
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import PersonIcon from '@mui/icons-material/Person';
 
 import { makeStyles } from '@mui/styles';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import './MobileDrawer.css';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import HoverMenu from './new/HoverMenu';
+import { TreeItem, TreeView } from '@mui/lab';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import MenuIcon from '@mui/icons-material/Menu'
+import { baseURL } from '../../api/baseURL';
+import { filterActions} from '../../redux/reducers/filterSlice'
 
 const useStyles = makeStyles({
     // [theme.bre]
 })
 export default function MobileDrawer() {
+  const[cat, setCat] = React.useState([]);
   const totalCartItems = useSelector(state=> state.cart.totalQuantity)
-
+  const [showList, setShowList]=React.useState(false)
   const [state, setState] = React.useState({
     top: false,
     left: false,
@@ -35,30 +41,51 @@ export default function MobileDrawer() {
     right: false,
   });
 
+  useEffect(() => {
+    axios
+       .get(`categories/`)
+       .then((response)=>setCat(response.data))
+  }, []);
+    console.log(cat)
+
   const toggleDrawer = (anchor, open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
     }
 
     setState({ ...state, [anchor]: open });
+    console.log("ANCHHOOOOOR CLOOOSEd")
   };
 
+  const dispatch = useDispatch()
+  
+  const handleProductsClick=()=>{
+    dispatch(filterActions.remAllSearches())
+    setState({...state, 'left': false})
+  }
+  const handleFilterCateg=(id)=>{
+      console.log("Hover", id)
+      dispatch(filterActions.setSearch({name:"category", value:id}))
+      setState({...state, 'left': false})
+  }
+ 
   const list = (anchor) => (
     <Box
       sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : '100vw' }}
       role="presentation"
-      onClick={toggleDrawer(anchor, false)}
-      onKeyDown={toggleDrawer(anchor, false)}
+      
     >
-      <List>
+      
           <Grid container justifyContent='space-between'>
             <Grid component={Link} to='/' item lg={1} marginTop={3} marginLeft={3}>
                 <img  height={50} src="img/logo/logo1.png" alt="logo" />
             </Grid>
-              <Grid item marginTop={3} marginRight={3} >
+              <Grid item marginTop={3} marginRight={3} onClick={toggleDrawer(anchor, false)}
+                onKeyDown={toggleDrawer(anchor, false)} >
                   <CloseIcon/>
               </Grid>
           </Grid>
+         
         {/* {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
           <ListItem button key={text}>
             <ListItemIcon>
@@ -67,21 +94,65 @@ export default function MobileDrawer() {
             <ListItemText primary={text} />
           </ListItem>
         ))} */}
-      </List>
+      
       <Divider />
-      <List>
-        
+      <Grid container marginTop={1} direction="column" spacing={8} alignItems="center" justifyContent="space-between">
+            <Grid item >
+              <Button variant="contained" LinkComponent={Link} to="/" onClick={toggleDrawer(anchor, false)} sx={{width:"80vw"}}  >Home</Button>
+            </Grid>
+            <Grid item display="flex" flexDirection='column'>
             
-        
-        {/* {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>
-              {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))} */}
-      </List>
+            {/* <Button>
+              Products
+            </Button> */}
+            
+            {/* <TreeView
+      aria-label="file system navigator"
+      defaultCollapseIcon={<ExpandMoreIcon />}
+      defaultExpandIcon={<ChevronRightIcon />}
+      sx={{ flexGrow: 1, overflowY: "auto" }}
+      //   sx={{ height: 240, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
+    >       
+            <Button >
+            <TreeItem sx={{marginBottom:2}} nodeId={`120`} label="Products" >
+                    <TreeItem sx={{marginBottom:1, textDecoration: "none"}}  label="ccsd" nodeId="4"/>
+            </TreeItem>
+            </Button>
+            </TreeView> */}
+            
+            <ButtonGroup  sx={{justifyContent:'center'}} aria-label="split button"  >
+            
+            <Button LinkComponent={Link} to="/products"   sx={{borderRadius:"4px 0 0 4px ", width: "calc(80vw - 40px)"}} onClick={()=>handleProductsClick()} >Products</Button>
+              <Button sx={{borderRadius:"0 4px 4px 0 "}}
+               size="small"
+               onClick={()=>setShowList(!showList)}
+                 >
+                   <ArrowDropDownIcon />
+                  </Button>
+            </ButtonGroup>
+            <Collapse in={showList}>
+            <Box display="flex" flexDirection="column" gap={1} disablePadding>
+              {cat?.map((d)=>
+              
+              <Button key={d.id} sx={{color:"black"}} LinkComponent={Link} to={`/products`} onClick={()=>handleFilterCateg(d.id)}>
+                {d.name}
+              </Button>
+              
+              )}
+              
+          
+          </Box>
+            </Collapse>
+
+            </Grid>
+            <Grid item>
+              <Button variant="outlined" sx={{width:"80vw"}}>About Us</Button>
+            </Grid>
+            <Grid item>
+              <Button variant="outlined" sx={{width:"80vw"}} component={Link} to='/cart' onClick={toggleDrawer(anchor, false)}>Your Orders</Button>
+            </Grid>
+          </Grid>
+      
     </Box>
   );
 
@@ -92,13 +163,11 @@ export default function MobileDrawer() {
             
           <Grid container justifyContent='space-around' alignItems='center' height={60} >
             <Grid item>
-                <Button startIcon={<Badge  color='primary'><MenuOpenIcon fontSize='medium'/></Badge>} onClick={toggleDrawer("left", true)}></Button>
+                <Button startIcon={<Badge  color='primary'><MenuIcon fontSize='medium'/></Badge>} onClick={toggleDrawer("left", true)}></Button>
             </Grid>
-            <Grid item >
+            {/* <Grid item >
                 
                 <Button component={Link} to="/" startIcon={<Badge  color='primary'><HomeIcon fontSize='medium'/></Badge>}></Button>
-                {/* <Link to='/'><HomeIcon sx={{height: "40px"}}/></Link> */}
-                {/* <Button  startIcon={<HomeIcon sx={{height: "40px"}}/>}></Button> */}
             </Grid>
             <Grid item>
                 
@@ -107,7 +176,7 @@ export default function MobileDrawer() {
             </Grid>
             <Grid>
                 <Button component={Link} to="/login" startIcon={<Badge  color='primary'><PersonIcon fontSize='medium'/></Badge>}></Button>
-            </Grid>
+            </Grid> */}
           </Grid>
           <Drawer
             anchor={anchor}

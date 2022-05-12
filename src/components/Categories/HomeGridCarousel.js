@@ -1,29 +1,46 @@
+import { Skeleton } from '@mui/material';
 import React, { Component } from 'react';
-// import Carousel from 'react-elastic-carousel';
-import Carousel from "react-grid-carousel"
-
-// import arrowLeft from '../../images/arrow-left.svg'
-// import arrowRight from '../../images/arrow-right.svg'
+import Carousel from "react-grid-carousel";
 import { Link } from "react-router-dom";
-import brochure from '../../images/brochures.jpg'
-import mag from '../../images/magazine-2.jpg'
-import cal from '../../images/calendar.jpg'
-import pck from '../../images/product-package.png'
+
 
 import '../Categories/HomeGridCarousel.css';
 
-const HomeGridCarousel = (props) =>{
-    const breakPoints = [
-        {width: 1, itemsToShow: 1},
-        {width: 500, itemsToShow: 2},
-        {width: 768, itemsToShow: 3},
-        {width: 1200, itemsToShow: 4},
-    ];
+const HomeGridCarousel = ({item, loading}) =>{
+    const ps = item?item:null
+  const [products, setProducts] = React.useState();
+  React.useEffect(() => {
+    setProducts(ps)
+  }, [ps]);
+    // const breakPoints = [
+    //     {width: 1, itemsToShow: 1},
+    //     {width: 500, itemsToShow: 2},
+    //     {width: 768, itemsToShow: 3},
+    //     {width: 1200, itemsToShow: 4},
+    // ];
+    const skeArr =[1,2,3,4]
     return(
         <section className="categories-section">
-            <h3>{props.toshow ? 'Categories' : ''} </h3>
             <Carousel cols={4} showDots loop   className="carousel">
-                {props.data.map((d, index)=>(
+            {loading && skeArr.map((d, index)=>(<Carousel.Item key={index} >
+                <Skeleton variant="rectangular" height="220px" animation="wave"  />
+            </Carousel.Item>))}
+            {!loading && products?.map((d, index)=>(
+                    <Carousel.Item key={index} >
+                    <Link to={`/product/${d.id}`}>
+                         <div className='cat'>
+                             <img src={d.images[0]?.image}  alt={d.name} />
+                             <div className='details'>
+                                 <p>{d.name}</p>
+                             </div>
+                         </div>
+                     </Link>
+                    </Carousel.Item>
+                ))}
+
+
+
+                {/* {props.data.map((d, index)=>(
                     <Carousel.Item key={index} >
                     <Link to={`/products/${d.id}/${d.name}`}>
                          <div className='cat'>
@@ -34,7 +51,7 @@ const HomeGridCarousel = (props) =>{
                          </div>
                      </Link>
                     </Carousel.Item>
-                ))}
+                ))} */}
                
                {/* <Carousel.Item >
                <Link to={`/products/${'brochure'}`}>

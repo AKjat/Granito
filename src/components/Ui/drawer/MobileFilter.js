@@ -1,7 +1,7 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
-import Button from "@mui/material/Button";
+import {Button} from "@mui/material";
 import List from "@mui/material/List";
 import Divider from "@mui/material/Divider";
 import ListItem from "@mui/material/ListItem";
@@ -16,6 +16,8 @@ import {
   FormGroup,
   Grid,
   Typography,
+  Autocomplete,
+  TextField
 } from "@mui/material";
 import FolderIcon from "@mui/icons-material/Folder";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
@@ -24,8 +26,42 @@ import PublicIcon from "@mui/icons-material/Public";
 import FormatPaintIcon from "@mui/icons-material/FormatPaint";
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import CheckButton from "../SelfButton/CheckButton";
+import axios from "axios";
+import { baseURL } from "../../../api/baseURL";
+import { useDispatch, useSelector } from "react-redux";
+import { makeStyles } from "@mui/styles";
+import { filterActions } from "../../../redux/reducers/filterSlice";
+import { Country } from "country-state-city";
 
-export default function MobileFilter() {
+const useStyles = makeStyles((theme) => ({
+  // hideM: {
+  //   [theme.breakpoints.down("md")]: {
+  //     display: "none",
+  //   },
+  //   [theme.breakpoints.up("md")]: {
+  //     display: "block",
+  //   },
+  // },
+  // hideD: {
+  //   [theme.breakpoints.up("md")]: {
+  //     display: "none",
+  //   },
+  //   [theme.breakpoints.down("md")]: {
+  //     display: "block",
+  //   },
+  // },
+  checkForm: {
+      "& .MuiFormControlLabel-root": {
+        fontSize: "14px",
+        "& .MuiTypography-root": {
+          fontSize: "inherit"
+        }
+      }
+  }
+}));
+
+export default function MobileFilter({handleDelete, colorFilters, colors}) {
+  const classes = useStyles()
   const [state, setState] = React.useState({
     top: false,
     left: false,
@@ -47,6 +83,28 @@ export default function MobileFilter() {
 
     setState({ ...state, [anchor]: open });
   };
+
+  const dispatch = useDispatch()
+  const filters = useSelector(state=>state.filter.searchData)
+  const handleColorCheck = (id) => (event, value) => {
+    value? dispatch(filterActions.setSearch({name: "color", value: id}) ) :
+            dispatch(filterActions.remSearch({name: "color", value: id}))
+  };
+
+  
+  const [countryVal, setCountryVal] = React.useState(null)
+  const countries = Country.getAllCountries()
+  React.useEffect(() => {
+    if(filters.hasOwnProperty('origin') == false){
+      setCountryVal(null)
+    } 
+  }, [!filters.hasOwnProperty('origin')]);
+
+  const handleCountryChange = (event, value)=>{
+    value? dispatch(filterActions.setSearch({name: "origin", value: value?.name})):
+            dispatch(filterActions.remSearch({name: "origin"}))
+          setCountryVal(value)
+  }
 
   const list = (anchor) => (
     <Box
@@ -73,7 +131,31 @@ export default function MobileFilter() {
       </Grid>
       <Divider></Divider>
 
-      <FormGroup>
+      <Box marginTop={1}>
+      <Autocomplete
+                             options={countries}
+                             value={countryVal}
+                             onChange={handleCountryChange}
+                             autoHighlight
+                             getOptionLabel={(option) => option.name}
+                             renderOption={(props, option) => (
+                               <Box component="li" sx={{ mr: 2, flexShrink: 0  }} {...props}>
+                                    {option.flag}    {option.name}  
+                               </Box>
+                             )}
+                          renderInput={(params) => (
+                               <TextField
+                               {...params}
+                               label="Choose a country"
+                                   inputProps={{
+                                     ...params.inputProps,
+                                     autoComplete: 'new-password', 
+                                   }}
+                                     />
+                                    )}
+                                 />
+      </Box>
+      {/* <FormGroup>
           <Grid container direction="row">
             <Grid item xs={6}>
               <CheckButton img={<img src="/img/countries/egypt.png" alt="" />} title={"Egypt"} />
@@ -81,10 +163,7 @@ export default function MobileFilter() {
               <CheckButton img={<img src="/img/countries/iraq.png" alt="" />} title={"Iraq"} />
               <CheckButton img={<img src="/img/countries/germany.png" alt="" />} title={"Germany"} />
 
-              {/* <FormControlLabel
-              control={<Checkbox defaultChecked={false} />}
-              label="Egypt"
-            /> */}
+              
             </Grid>
             <Grid item xs={6}>
               <CheckButton img={<img src="/img/countries/1.png" alt="" />} title={"Turkey"} />
@@ -93,7 +172,7 @@ export default function MobileFilter() {
               <CheckButton img={<img src="/img/countries/italy.png" alt="" />} title={"Italy"} />
             </Grid>
           </Grid>
-        </FormGroup>
+        </FormGroup> */}
 
 
 
@@ -102,7 +181,7 @@ export default function MobileFilter() {
       <Grid container marginTop={2} alignItems="center" justifyContent="space-between">
         <Grid item>
           <Typography variant="h6" component="h5" align="left">
-            Filter by price
+            Price
           </Typography>
         </Grid>
         <Grid item>
@@ -142,18 +221,26 @@ export default function MobileFilter() {
       <Divider></Divider>
       <FormGroup>
       <Grid container>
-            <Grid item xs={6}>
-              <CheckButton title={"White"} />
-              <CheckButton title={"Black"} />
-              <CheckButton title={"Brown"} />
-              <CheckButton title={"Pink"} />
-            </Grid>
-            <Grid item xs={6}>
+            {colors?.map((d) => {
+              // console.log(filters.color?filters?.color?.includes(d.id):false,'sjfkjs',d.id)
+              return(
+              <Grid key={d.id} item xs={6}>
+                <FormGroup className={classes.checkForm} >
+                  <FormControlLabel
+                    control={<Checkbox checked={filters.color?filters?.color?.includes(d.id):false}  size="small" id={`color${d.id}`} onChange={handleColorCheck(d.id)} />}
+                    label={d.name}
+                    sx={{fontSize: "5px"}}
+                    />
+                </FormGroup>
+              </Grid>
+            )})}
+              
+            {/* <Grid item xs={6}>
               <CheckButton title={"Yellow"} />
               <CheckButton title={"Green"} />
               <CheckButton title={"Grey"} />
               <CheckButton title={"Exotic"} />
-            </Grid>
+            </Grid> */}
           </Grid>
       </FormGroup>
     </Box>

@@ -29,4 +29,4 @@ const Categ = (props) => {
   );
 }
 
-export default Categ;
+// export default Categ;

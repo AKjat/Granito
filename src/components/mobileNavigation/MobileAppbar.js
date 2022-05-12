@@ -6,11 +6,11 @@ import MobileDrawer from '../Ui/MobileDrawer';
 const useStyles= makeStyles((theme)=>({
     mobileView: {
          
-        position: 'fixed',
-        backgroundColor: '#fff',
-        bottom: '0',
-        left: '0',
-        width: '100%',
+        // position: 'fixed',
+        // backgroundColor: '#fff',
+        // bottom: '0',
+        // left: '0',
+        // width: '100%',
         [theme.breakpoints.down('md')]: {
             display: 'block'
           },

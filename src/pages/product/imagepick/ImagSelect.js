@@ -1,6 +1,6 @@
-import { Box, Grid } from '@mui/material';
+import { Box, Grid, Skeleton, Stack } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactImageMagnify from 'react-image-magnify';
 
 const useStyles = makeStyles((theme)=>({
@@ -33,9 +33,18 @@ const useStyles = makeStyles((theme)=>({
     }
 }))
 
-const ImagSelect = ({selectedProduct}) => {
-    const [src, setsrc] = useState("/img/product/AlaskaGold/1.jpg");
+const ImagSelect = ({product, loading}) => {
+
+    // const [src, setsrc] = useState("/img/product/AlaskaGold/1.jpg");
     
+    const images = product?.images
+    const firstImage = images?images[0]?.image:null
+
+    const [src, setsrc] = useState("");
+    useEffect(() => {
+      setsrc(firstImage)
+    }, [firstImage]);
+
    
     const imgClick =(url)=>{
         setsrc(url)
@@ -45,40 +54,54 @@ const ImagSelect = ({selectedProduct}) => {
   return (
     <Grid container direction='column' alignItems='center' spacing={1}>
         <Grid item >
-            <Box >
-        <ReactImageMagnify imageClassName={classes.boxImgSm} 
-                            enlargedImageClassName={classes.boxImgBig}
-        {...{ 
-                        smallImage: {
-                            alt: 'Wristwatch by Ted Baker London',
-                            isFluidWidth: true,
-                            src: src,
-                            
-                            
-                        },
-                        largeImage: {
-                          
-                            src: src,
-                            width: 1447,
-                            height: 1150,
-                            
-                        },
-                        enlargedImageContainerDimensions:{width: '135%', height: '100%'},
-                        shouldUsePositiveSpaceLens: true,
-                        enlargedImageContainerStyle: {zIndex: 10,
-                                                      borderRadius: 2,
-                                                    boxShadow: 10}
-                    }} />
+            {loading?(<Skeleton variant="rectangular"  height={200}></Skeleton>):(
 
-            {/* <img id='box-img' className={classes.boxImgSm}  src={src} alt="" /> */}
-            {/* xs:{height: '30vh'}, lg:{height: '45vh'} */}
-            </Box>
+<Box >
+<ReactImageMagnify imageClassName={classes.boxImgSm} 
+                    enlargedImageClassName={classes.boxImgBig}
+{...{           
+                smallImage: {
+                    alt: 'Wristwatch by Ted Baker London',
+                    isFluidWidth: true,
+                    src: src,
+                    required: false
+                    
+                    
+                },
+                largeImage: {
+                  
+                    src: src,
+                    width: 1447,
+                    height: 1150,
+                    
+                },
+                enlargedImagePosition:"over",
+                enlargedImageContainerDimensions:{width: '135%', height: '100%'},
+                shouldUsePositiveSpaceLens: true,
+                isHintEnabled:true,
+                enlargedImageContainerStyle: {zIndex: 10,
+                                              borderRadius: 2,
+                                            boxShadow: 10}
+            }} />
+
+    
+    </Box>
+            )}
+           
         </Grid>
         <Grid item>
             <Grid container spacing={1} className={classes.imgList}>
-                <Grid item>
+                {!loading && <Stack direction="row" > <Skeleton height={50} variant="rectangular"></Skeleton>
+                    <Skeleton variant="rectangular" height={50}></Skeleton>
+                    <Skeleton variant="rectangular" height={50}></Skeleton>
+                 </Stack>}
+                {images && images.map((d, index)=>(<Grid item key={index}>
+                <img onMouseOver={()=>imgClick(d.image)}  src={d?.image} alt="" />
+               
+                </Grid> ))}
+                {/* <Grid item>
                 <img onMouseOver={()=>imgClick("/img/product/AlaskaGold/1.jpg")}  src="/img/product/AlaskaGold/1.jpg" alt="" />
-                {/* onClick={()=>imgClick("/img/product/p1.jpg")} */}
+                
                 </Grid>
                 <Grid item>
                 <img onMouseOver={()=>imgClick("/img/product/AlaskaWhite/2.jpg")} src="/img/product/AlaskaWhite/2.jpg" alt=""/>
@@ -88,7 +111,7 @@ const ImagSelect = ({selectedProduct}) => {
                 </Grid>
                 <Grid item>
                 <img onMouseOver={()=>imgClick("/img/product/Red/1.jpg")} src="/img/product/Red/1.jpg" alt="" />
-                </Grid>
+                </Grid> */}
             </Grid>
         </Grid>
     </Grid>

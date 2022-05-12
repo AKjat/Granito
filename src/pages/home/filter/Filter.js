@@ -4,35 +4,100 @@ import {
   Typography,
   Chip,
   Grid,
-  Button,
   FormGroup,
+  FormControlLabel,
+  Checkbox,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import React from "react";
-import ProductCategory from "../../../components/categlist/ProductCategory";
 import FolderIcon from "@mui/icons-material/Folder";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import RangeSlider from "../../../components/Ui/PriceSlider";
 import PublicIcon from "@mui/icons-material/Public";
 import FormatPaintIcon from "@mui/icons-material/FormatPaint";
-import ArrowRightOutlinedIcon from "@mui/icons-material/ArrowRightOutlined";
-import CheckButton from "../../../components/Ui/SelfButton/CheckButton";
-// import productDetails from '../../../data/Details';
+import Categories from "./components/Categories";
+import { useDispatch, useSelector } from "react-redux";
+import { filterActions, getFilter, getPriceFilter } from "../../../redux/reducers/filterSlice";
+import { makeStyles } from "@mui/styles";
+import { searchActions } from "../../../redux/reducers/searchSlice";
+import {Country} from "country-state-city"
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 
-const Filter = () => {
-  const getValue = (val) => {
-    console.log(val);
+
+const useStyles = makeStyles((theme) => ({
+  hideM: {
+    [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
+    [theme.breakpoints.up("md")]: {
+      display: "block",
+    },
+  },
+  hideD: {
+    [theme.breakpoints.up("md")]: {
+      display: "none",
+    },
+    [theme.breakpoints.down("md")]: {
+      display: "block",
+    },
+  },
+  checkForm: {
+      "& .MuiFormControlLabel-root": {
+        fontSize: "14px",
+        "& .MuiTypography-root": {
+          fontSize: "inherit"
+        }
+      }
+  }
+}));
+
+const Filter = ({category, handleDelete, colorFilters, colors, categories}) => {
+  const classes = useStyles()
+  const [countryVal, setCountryVal] = React.useState(null)
+
+  const dispatch = useDispatch();
+  const filters = useSelector(state=>state.filter.searchData)
+  const countries = Country.getAllCountries()               
+
+  React.useEffect(() => {
+    if(filters.hasOwnProperty('origin') == false){
+      setCountryVal(null)
+    } 
+  }, [!filters.hasOwnProperty('origin')]);
+
+  const handleColorCheck = (id) => (event, value) => {
+    value? dispatch(filterActions.setSearch({name: "color", value: id}) ) :
+            dispatch(filterActions.remSearch({name: "color", value: id}))
   };
 
-  // const handleCategColor = () => {
-  //   const updatedItems = productDetails.filter((curElem) => {
-  //     return curElem.color === categ;
-  //   });
-  //   setItems(updatedItems);
-  // };
+  const handleCountryChange = (event, value)=>{
+    value? dispatch(filterActions.setSearch({name: "origin", value: value?.name})):
+            dispatch(filterActions.remSearch({name: "origin"}))
+          setCountryVal(value)
+  }
   return (
     <>
       <Box marginTop={1}>
         <Grid container alignItems="center" justifyContent="space-between">
+          <Grid item>
+            <Typography variant="h6"  align="left" gutterBottom>
+              Filters
+            </Typography>
+          </Grid>
+          <Grid item>
+              <FilterAltIcon fontSize="small"/>
+          </Grid>
+        </Grid>
+        <Grid container marginBottom={1}  gap={1}  padding={1}>
+        {filters.category?  <Chip label={category?.name} variant="outlined" onDelete={handleDelete({name:'category'})}  />:""}
+            {filters.color?colorFilters.map(d=> <Chip label={d.name} key={d.id} variant="outlined" onDelete={handleDelete({name: "color", value:d.id})} />):""}
+            {filters.origin?<Chip label={filters.origin} variant="outlined" onDelete={handleDelete({name:'origin'})}  />:""}
+            {filters.price_max? <Chip label={`${filters.price_min} ₹ -- ${filters.price_max} ₹`} variant="outlined" onDelete={handleDelete({name: 'price'})}  />:""   }
+        </Grid>
+        <Divider/>
+        <Box marginTop={1} marginBottom={1}>
+        <Grid container alignItems="center" justifyContent="space-between" >
           <Grid item>
             <Typography variant="h6" component="h5" align="left">
               Product Categories
@@ -42,38 +107,31 @@ const Filter = () => {
             <FolderIcon fontSize="small" />
           </Grid>
         </Grid>
-        <Divider></Divider>
-        <ProductCategory />
+        <Categories categories={categories}/>
+        <Divider/>
+        </Box>
 
+        <Box marginTop={1} marginBottom={1}>
         <Grid
           container
-          marginTop={2}
           alignItems="center"
           justifyContent="space-between"
         >
           <Grid item>
             <Typography variant="h6" component="h5" align="left">
-              Filter by price
+              Price
             </Typography>
           </Grid>
           <Grid item>
-            <FilterAltIcon fontSize="small" />
+            <CurrencyRupeeIcon fontSize="small" />
           </Grid>
         </Grid>
-        <Divider></Divider>
-        <RangeSlider getValue={getValue} />
-        <Grid container alignItems="center" justifyContent="space-between">
-          <Grid item>
-            <Button variant="contained" size="small">
-              Filter
-            </Button>
-          </Grid>
-          <Grid item marginRight={3}>
-            <Typography>Price:</Typography>
-          </Grid>
-        </Grid>
+        <RangeSlider />
+        <Divider/>
+        </Box>
+       
+        <Box marginTop={1} marginBottom={1}>
         <Grid
-          marginTop={2}
           container
           alignItems="center"
           justifyContent="space-between"
@@ -87,56 +145,35 @@ const Filter = () => {
             <PublicIcon fontSize="small" />
           </Grid>
         </Grid>
-        <Divider></Divider>
 
-        <FormGroup>
-          <Grid container direction="column">
-            <Grid item xs={12}>
-              <CheckButton
-                img={<img src="/img/countries/egypt.png" alt="" />}
-                title={"Egypt"}
-              />
-              <CheckButton
-                img={<img src="/img/countries/iran.png" alt="" />}
-                title={"Iran"}
-              />
-              <CheckButton
-                img={<img src="/img/countries/iraq.png" alt="" />}
-                title={"Iraq"}
-              />
-              <CheckButton
-                img={<img src="/img/countries/germany.png" alt="" />}
-                title={"Germany"}
-              />
-
-              {/* <FormControlLabel
-              control={<Checkbox defaultChecked={false} />}
-              label="Egypt"
-            /> */}
-            </Grid>
-            <Grid item xs={12}>
-              <CheckButton
-                img={<img src="/img/countries/1.png" alt="" />}
-                title={"Turkey"}
-              />
-              <CheckButton
-                img={<img src="/img/countries/us.png" alt="" />}
-                title={"United States"}
-              />
-              <CheckButton
-                img={<img src="/img/countries/china.png" alt="" />}
-                title={"China"}
-              />
-              <CheckButton
-                img={<img src="/img/countries/italy.png" alt="" />}
-                title={"Italy"}
-              />
-            </Grid>
-          </Grid>
-        </FormGroup>
-
+        <Box marginTop={1} marginBottom={1}>
+                       <Autocomplete
+                             options={countries}
+                             value={countryVal}
+                             onChange={handleCountryChange}
+                             autoHighlight
+                             getOptionLabel={(option) => option.name}
+                             renderOption={(props, option) => (
+                               <Box component="li" sx={{ mr: 2, flexShrink: 0  }} {...props}>
+                                    {option.flag}    {option.name}  
+                               </Box>
+                             )}
+                          renderInput={(params) => (
+                               <TextField
+                               {...params}
+                               label="Choose a country"
+                                   inputProps={{
+                                     ...params.inputProps,
+                                     autoComplete: 'new-password', 
+                                   }}
+                                     />
+                                    )}
+                                 />
+        </Box>          
+        <Divider/>
+        </Box>
+        <Box marginTop={1} marginBottom={1}>                          
         <Grid
-          marginTop={2}
           container
           alignItems="center"
           justifyContent="space-between"
@@ -150,24 +187,26 @@ const Filter = () => {
             <FormatPaintIcon fontSize="small" />
           </Grid>
         </Grid>
-        <Divider></Divider>
         <FormGroup>
           <Grid container>
-            <Grid item xs={5}>
-              <CheckButton title={"White"} />
-              <CheckButton title={"Black"} />
-              <CheckButton title={"Brown"} />
-              <CheckButton title={"Pink"} />
-            </Grid>
-            <Grid item xs={5}>
-              <CheckButton title={"Yellow"} />
-              <CheckButton title={"Green"} />
-              <CheckButton title={"Grey"} />
-              <CheckButton title={"Exotic"} />
-            </Grid>
+            {colors?.map((d) => {
+              // console.log(filters.color?filters?.color?.includes(d.id):false,'sjfkjs',d.id)
+              return(
+              <Grid key={d.id} item xs={6}>
+                <FormGroup className={classes.checkForm} >
+                  <FormControlLabel
+                    control={<Checkbox checked={filters.color?filters?.color?.includes(d.id):false}  size="small" id={`color${d.id}`} onChange={handleColorCheck(d.id)} />}
+                    label={d.name}
+                    sx={{fontSize: "5px"}}
+                    />
+                </FormGroup>
+              </Grid>
+            )})}
           </Grid>
         </FormGroup>
       </Box>
+            <Divider/>
+            </Box>
     </>
   );
 };

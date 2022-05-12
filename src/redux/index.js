@@ -1,4 +1,12 @@
-import {configureStore, createSlice} from "@reduxjs/toolkit";
+import {configureStore, createSlice, getDefaultMiddleware} from "@reduxjs/toolkit";
+import cartSlice from "./reducers/cartSlice";
+import customerSlice from "./reducers/customerSlice";
+import filterSlice from "./reducers/filterSlice";
+import imgUploadSlice from "./reducers/imageUpload";
+import loginSlice from "./reducers/loginSlice";
+import searchSlice from "./reducers/searchSlice";
+import transportSlice from "./reducers/transportSlice";
+import uploadSlice from "./reducers/uploadSlice";
 
 const counterSlice = createSlice({
     name: "counter",
@@ -15,77 +23,28 @@ const counterSlice = createSlice({
         },
     }
 })
-const cartSlice = createSlice({
-    name: "cart",
-    initialState : {
-        itemList: [],
-        totalQuantity: 0,
-    },
-    reducers: {
-        addCart(state, action){
-            const newItem = action.payload
-            // check if already in list or not
-            const existingItem = state.itemList.find(item=>item.id === newItem.id)
-            if(existingItem){
-                // alert("item already in cart")
-                // existingItem.quantity=existingItem.quantity
-                // existingItem.quantity++;
-                existingItem.quantity += newItem.quantity;
-                existingItem.totalPrice = existingItem.price*existingItem.quantity;
-            }
-            else{
-                state.itemList.push({
-                    id: newItem.id,
-                    price: newItem.price,
-                    quantity: newItem.quantity,
-                    name: newItem.name,
-                    image: newItem.img,
-                    totalPrice: newItem.price*newItem.quantity
-                })
-                state.totalQuantity++
-            }
-        },
-        removeCart(state, action){
-            const id = action.payload;
-            state.itemList = state.itemList.filter(item=>item.id !== id);
-            state.totalQuantity--
-            // const existingItem = state.itemList.find(item=> item.id===id);
-            // if(existingItem.quantity === 1){
-            //     state.itemList = state.itemList.filter(item=>item.id !== id);
-            // }else{
-            //     existingItem.quantity--
-            //     existingItem.totalPrice -= existingItem.price
-            // }
-        },
-        setQuantity(state, action){
-            const id = action.payload.id
-            const quantity = action.payload.qty1
-            const existingItem = state.itemList.find(item=>item.id === id)
-            if(existingItem){
-                existingItem.quantity=quantity
-                existingItem.totalPrice=quantity*existingItem.price
 
-            }
-            // const index = state.itemList.findIndex(item=>item.id==id)
-            // state.itemList[index].quantity=quantity
-            // state.itemList[index].totalPrice=quantity*state.itemList[index].price
-
-            // state.itemList = state.itemList.map(item=>{
-            //     if(item.id===id){
-            //         item.quantity = quantity;
-
-            //         // return{...item, quantity: quantity }
-            //     }
-            // })
-        },
-        Addby(state, action){
-            state.count+=action.payload
-        },
-    }
-})
 export const actions = counterSlice.actions
 export const cartActions = cartSlice.actions
+export const customerActions = customerSlice.actions
+export const loginActions = loginSlice.actions
+export const transportActions = transportSlice.actions
+export const uploadProductActions = uploadSlice.actions
+
 const store = configureStore({
-    reducer: {count: counterSlice.reducer, cart: cartSlice.reducer }
+    reducer: {count: counterSlice.reducer,
+         cart: cartSlice.reducer,
+         customer: customerSlice.reducer,
+         login: loginSlice.reducer,
+         transportEstimate: transportSlice.reducer,
+         uploadProduct: uploadSlice.reducer,
+         imgUpload: imgUploadSlice.reducer,
+         filter: filterSlice.reducer,
+         search: searchSlice.reducer
+        },
+    
+    // middleware: getDefaultMiddleware({
+    //         serializableCheck: false
+    //       }),
 })
 export default store;

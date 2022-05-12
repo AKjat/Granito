@@ -34,7 +34,6 @@ export default function SpecialReqDialog({setSuccess}) {
     return(
       <Alert severity="success">This is a success alert — check it out!</Alert>
     )
-    
   };
 
   return (
@@ -58,8 +57,7 @@ export default function SpecialReqDialog({setSuccess}) {
           }}/>
             </Box>
             <Box display="flex"  alignItems="center" marginTop={1}>
-            <TextField  label="Quantity" >
-                
+            <TextField  label="Quantity" >   
             </TextField>
                 <TextField  select value={option} onChange={handleChange} type="number">
                   {options.map((option)=>(
@@ -67,60 +65,14 @@ export default function SpecialReqDialog({setSuccess}) {
                   ))}  
                 </TextField>  
             </Box>
-          {/* <DialogContentText>
-            To subscribe to this website, please enter your email address here. We
-            will send updates occasionally.
-          </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Email Address"
-            type="email"
-            fullWidth
-            variant="standard"
-          /> */}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button 
-        
         onClick={() => {
           setOpen(!open)
           setSuccess(true);
         }}>Send</Button>
-
-          {/* <Box sx={{ width: '100%' }}>
-      <Collapse in={open}>
-        <Alert
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setOpen(false);
-              }}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-          sx={{ mb: 2 }}
-        >
-          Close me!
-        </Alert>
-      </Collapse>
-      <Button
-        disabled={open}
-        variant="outlined"
-        onClick={() => {
-          setOpen(true);
-        }}
-      >
-        Re-open
-      </Button>
-    </Box> */}
-
         </DialogActions>
       </Dialog>
     </div>

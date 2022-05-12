@@ -1,6 +1,18 @@
-import { Box, Button, Container, Divider, Grid, Paper } from "@mui/material";
+import {
+  Box,
+  Button,
+  Chip,
+  Container,
+  Divider,
+  Grid,
+  Paper,
+  Typography,
+  Tabs,
+  Tab
+} from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import Product from "../../../components/product/Product";
 import ProductCard from "../../../components/product/ProductCard";
 import BreadCrumbs from "../../../components/Ui/Breadcrumbs";
@@ -8,10 +20,15 @@ import MobileCategory from "../../../components/Ui/drawer/MobileCategory";
 import MobileFilter from "../../../components/Ui/drawer/MobileFilter";
 import Filter from "./Filter";
 import Categ from "../../../components/categlist/Categ";
-import productDetails from "../../../data/Details";
-import { CartState } from "../../../context/Context";
-import {connect, useDispatch, useSelector} from 'react-redux';
-
+import axios from "axios";
+import { baseURL } from "../../../api/baseURL";
+import SkeletonProduct from "../../../components/product/SkeletonProduct";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  filterActions,
+  getFilter,
+  getProducts,
+} from "../../../redux/reducers/filterSlice";
 
 const useStyles = makeStyles((theme) => ({
   hideM: {
@@ -32,40 +49,91 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Filterpage = (props) => {
+const Filterpage = () => {
   const classes = useStyles();
-  const { state: {products} } = CartState();
-  const [items, setItems] = useState(productDetails);
+  const [items, setItems] = useState([]);
+  // const [loading, setLoading] = useState(true);
+  const [colors, setColors] = useState();
+  const [categories, setCategories] = useState();
 
-  const handleCateg = (categ) => {
-    const updatedItems = productDetails.filter((curElem) => {
-      return curElem.type === categ;
+  const dispatch = useDispatch();
+  const products = useSelector((state) => state.filter.products);
+  const loading = useSelector((state)=> state.filter.loading)
+  const filters = useSelector((state) => state.filter.searchData);
+  const category = categories?.find((d) => d.id === filters.category);
+
+  useEffect(() => {
+    getColors();
+    getCategories();
+  }, []);
+
+  useEffect(() => {
+    dispatch(getFilter("nothing"));
+  }, [filters]);
+
+  const getColors = () => {
+    axios.get(`colors/`)
+    .then((response) => {
+      setColors(response.data);
     });
-    setItems(updatedItems);
   };
-  const handleAll = () => {
-    const pdetails = productDetails.filter((curElem) => {
-      return curElem;
+  const getCategories = () => {
+    axios.get(`categories/`)
+    .then((response) => {
+      setCategories(response.data)
     });
-    setItems(pdetails);
   };
-  //-->fetch API
-  // const [Aproducts, setAProducts] = useState();
 
-  // useEffect(() => {
-  //   getData();
-  // }, []);
+  const colorFilters = [];
+  colors?.forEach((e1) =>
+    filters.color?.forEach((e2) => {
+      if (e1.id === e2) {
+        colorFilters.push(e1);
+      }
+    })
+  );
+  // const categoryFilters = [];
+  categories?.forEach((e1) => {
+    if (filters.category === e1.id) {
+      return e1.name;
+    }
+  });
 
-  // const getData = () => {
-  //   fetch("https://retoolapi.dev/CmTFgM/data")
-  //     .then((res) => res.json())
-  //     .then((data) => setAProducts(data))
-  //     .catch((err) => console.log(err));
-  //     console.log(Aproducts)
-  // };
-  //<---fetch API
-  
+  const handleDelete = (name) => (e, v) => {
+    if (name?.name === "price") {
+      dispatch(filterActions.remSearch({ name: name.name + "_min" }));
+      dispatch(filterActions.remSearch({ name: name.name + "_max" }));
+    } else {
+      dispatch(filterActions.remSearch({ name: name.name, value: name.value }));
+    }
+    // dispatch(getFilter("nothing"));
+  };
 
+  const handleOrdering = (value)=> {
+    dispatch(filterActions.setSearch({name: "ordering", value: value}))
+    // dispatch(getFilter("nothing"));
+  }
+
+
+  // const LogIn =() => {
+  //   if (isLoggedIn){
+  //     dispatch(login)
+  //   }
+  // }
+  const getAllProducts = () => {
+    axios.get(`products/`).then((response) => {
+      const allproducts = response.data.results;
+      setItems(allproducts);
+    });
+  };
+
+  const Arr = [1, 2, 3, 4, 5, 6];
+
+  const [tabValue, setTabValue] = React.useState(0);
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
   return (
     <>
       <Box>
@@ -73,34 +141,99 @@ const Filterpage = (props) => {
           {/* <Categ handleCateg={handleCateg} handleAll={handleAll} /> */}
         </Paper>
       </Box>
-      <Container  >
-        <Grid container justifyContent="space-between">
-          <Grid item xs={0} md={2}  className={classes.hideM}>
-            <Filter />
+      <Container>
+        <Grid container justifyContent="space-between" spacing={2}>
+          <Grid item xs={0} md={3} className={classes.hideM}>
+            <Filter
+              category={category}
+              handleDelete={handleDelete}
+              colorFilters={colorFilters}
+              colors={colors}
+              categories={categories}
+            />
           </Grid>
 
-
-          <Grid item xs={12} md={9} lg={9} marginTop={1} >
+          <Grid item xs={12} md={9} lg={9} marginTop={1}>
             <BreadCrumbs />
-            <Grid container justifyContent="space-between" marginTop={1}>
-              <Box className={classes.hideD}>
-                <MobileCategory />
+            {/* <Box display="flex" gap={1} marginTop={1}  padding={1}>
+            {filters.category?<Chip label={category.name} variant="outlined" onDelete={handleDelete({name:'category'})}  />:""}
+            {filters.color?colorFilters.map(d=> <Chip label={d.name} variant="outlined" onDelete={handleDelete({name: "color", value:d.id})} />):""}
+            {filters.origin?<Chip label={filters.origin} variant="outlined" onDelete={handleDelete({name:'origin'})}  />:""}
+            {filters.price_max? <Chip label={`${filters.price_min} ₹ -- ${filters.price_max} ₹`} variant="outlined" onDelete={handleDelete({name: 'price'})}  />:""   }
+            
+            </Box> */}
+            <Box display="flex" gap={1} alignItems="center" marginTop={1} sx={{  bgcolor: "background.paper", borderBottom: 1, borderColor: 'divider' }}>
+              <Typography variant="body1">Sort By</Typography>
+              {/* <Chip  label="Price -- low to high" clickable={true} clickableColorPrimary  onClick={()=>console.log("clicked")}/>
+                <Chip  label="Price -- low to high" onClick={()=>console.log("clicked")}/> */}
+              <Box >
+                <Tabs value={tabValue} onChange={handleTabChange} centered>
+                  <Tab label="Price -- low to high" onClick={()=>handleOrdering("price")} />
+                  <Tab label="Price -- high to low" onClick={()=>handleOrdering("-price")}/>
+                  {/* <Tab label="Item Three" /> */}
+                </Tabs>
               </Box>
+            </Box>
+            <Box marginTop={1}>
+              <Button variant="outlined" component={Link} to="/addproduct">
+                Add New Product
+              </Button>
+            </Box>
+            <Grid container justifyContent="space-between" marginTop={1}>
+              {/* <Box className={classes.hideD}>
+                <MobileCategory />
+              </Box> */}
               <Box className={classes.hideD}>
-                <MobileFilter className={classes.hideD} />
+                <MobileFilter className={classes.hideD} 
+                    handleDelete={handleDelete}
+                    colorFilters={colorFilters}
+                    colors={colors}
+                />
               </Box>
             </Grid>
+            Number Of Products = {products?.length}
             <Grid container spacing={2} marginTop={0}>
-              {products.map((d, index) => (
+              
+              {/* {loading? } */}
+              {!loading? 
+                products?.map((d, index) => (
+                  <Grid
+                    item
+                    key={index}
+                    xs={6}
+                    lg={4}
+                    sm={4}
+                    md={5}
+                    padding={0}
+                  >
+                    <Product d={d} loading={loading} />
+                  </Grid>
+                )) :
+                  Arr.map((d, index) => (
+                  <Grid
+                    item
+                    key={index}
+                    xs={6}
+                    lg={4}
+                    sm={4}
+                    md={5}
+                    padding={0}
+                  >
+                    {" "}
+                    <SkeletonProduct />{" "}
+                  </Grid>
+                ))}
+                
+
+              {/* {products.map((d, index) => (
                 <Grid item key={index} xs={6} lg={4} sm={4} md={5} padding={0}>
                   <Product
                     d={d}
                     index={index}
-                    handleClickOpen={props.handleClickOpen}
-                    
+                    handleClickOpen={props.handleClickOpen} 
                   />
                 </Grid>
-              ))}
+              ))} */}
             </Grid>
           </Grid>
         </Grid>
@@ -110,4 +243,3 @@ const Filterpage = (props) => {
 };
 
 export default Filterpage;
-

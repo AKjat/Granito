@@ -1,12 +1,19 @@
 import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom"
+import { NavLink } from "react-router-dom"
 
 import ProductCategory from '../../categlist/ProductCategory'
 import { makeStyles } from "@mui/styles";
-import { Button, MenuItem, Popover } from "@mui/material";
+import { Button, MenuItem, Popover, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import HoverMenuCateg from "../../Categories/HoverMenuCateg";
 import CList from '../../../data/CategList'
+import axios from "axios";
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import { baseURL } from '../../../api/baseURL';
+import { filterActions } from "../../../redux/reducers/filterSlice";
+import { useDispatch } from "react-redux";
+
 const useStyles = makeStyles(theme => ({
   popover: {
     pointerEvents: "none"
@@ -16,7 +23,8 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const HoverMenu = ({ loading, login, wrong, clearWrongLogin, filterItem, filterIte }) => {
+const HoverMenu = ({ loading, login, wrong, clearWrongLogin }) => {
+  const dispatch = useDispatch()
   const [openedPopover, setOpenedPopover] = useState(false);
   const popoverAnchor = useRef(null);
 
@@ -30,26 +38,46 @@ const HoverMenu = ({ loading, login, wrong, clearWrongLogin, filterItem, filterI
     setOpenedPopover(false);
   };
 
+  const [categories, setCategories] = useState()
+  
+  React.useEffect(() => { 
+    getCategories()
+  }, []);
+  
+  const getCategories = () => {
+    axios.get(`categories/`)
+    .then((response)=>{
+      setCategories(response.data)
+    })
+  }
+
+  const handleProductsClick=()=>{
+    dispatch(filterActions.remAllSearches())
+      console.log("sfdfsdsdvsdvvsfs")
+  }
+  const handleFilterCateg=(id)=>{
+      console.log("Hover", id)
+      dispatch(filterActions.setSearch({name:"category", value:id}))
+  }
+
   return (
     <div style={{display: 'flex', alignItems:'center'}}>
         <Button
-        sx={{color: 'white'}}
+        color="secondary"
         ref={popoverAnchor}
         aria-owns="mouse-over-popover"
         aria-haspopup="true"
+        component={Link}
+        to="/products"
         // onClick={openedPopover? popoverLeave : popoverEnter}
         onMouseEnter={popoverEnter}
+        // onClick={popoverEnter}
+        onClick={handleProductsClick}
         onMouseLeave={popoverLeave}
-        endIcon={openedPopover ? <ExpandLess /> : <ExpandMore />} 
-        onClick={()=>filterIte('')}
+        endIcon={openedPopover ? <ExpandLess /> : <ExpandMore />}
         >
         Products
         </Button>
-      {/* <span ref={popoverAnchor} aria-owns="mouse-over-popover" aria-haspopup="true" onMouseEnter={popoverEnter}
-        onMouseLeave={popoverLeave}
-      >
-        Hover this el !
-      </span> */}
       <Popover
         id="mouse-over-popover"
         className={classes.popover}
@@ -68,10 +96,20 @@ const HoverMenu = ({ loading, login, wrong, clearWrongLogin, filterItem, filterI
         }}
         PaperProps={{ onMouseEnter: popoverEnter, onMouseLeave: popoverLeave }}
       >
-        {CList.map((d, index, array)=>(
+        {categories? categories.map((d)=> (
+          <Link to={`/products`} key={d.id}>
+          <ListItemButton onClick={()=>handleFilterCateg(d.id)}>
+          <ListItemIcon sx={{ minWidth: "12px" }} >
+            <ArrowRightIcon />
+          </ListItemIcon>
+          <ListItemText secondary={d.name} />
+        </ListItemButton>
+        </Link>
+        )) : ""}
+        {/* {CList.map((d, index, array)=>(
           
-           <HoverMenuCateg d={d} key = {index} filterItem={filterItem}/>
-        ))}
+           <HoverMenuCateg d={d} key = {index} />
+        ))} */}
        
         {/* <ProductCategory/>
         

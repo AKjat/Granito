@@ -32,6 +32,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import { orange, red } from "@mui/material/colors";
 import './NewSearch.css'
+import { Warning } from "@mui/icons-material";
+import { useDispatch } from "react-redux";
+import { filterActions, getFilter } from "../../../redux/reducers/filterSlice";
+import { Navigate, Link } from 'react-router-dom'
 
 
 const PopperStyle = styled(Popper, { shouldForwardProp })(({ theme }) => ({
@@ -52,15 +56,18 @@ const styles = (theme) => ({
 const SearchBar = ({ popupState }) => {
   const theme = useTheme();
   return (
+    <Box display="flex" alignItems="center" justifyContent="center" sx={{backgroundColor: "white", height: "70px", width: "100vw"}}>
     <Box
       sx={{
-        position: "relative",
+
+        margin: "1px",
+        position: "absolute",
         borderRadius: theme.shape.borderRadius,
         borderColor: theme.palette.primary,
         border: "1.5px solid orange ",
         borderStyle: "inset",
         zIndex: "1100",
-        marginTop: "19px",
+        // marginTop: "19px",
         backgroundColor: alpha(orange[200], 1),
         "&:hover": {
           backgroundColor: alpha(orange[300], 1),
@@ -70,6 +77,7 @@ const SearchBar = ({ popupState }) => {
     >
       <InputBase
         type="search"
+        fullWidth={true}
         sx={{ ml: 2, flex: 1 }}
         placeholder="Search Products"
         inputProps={{ "aria-label": "search products" }}
@@ -93,10 +101,16 @@ const SearchBar = ({ popupState }) => {
         </IconButton>
       </Box>
     </Box>
+    </Box>
   );
 };
 
-const SearchWebBar = ({ popupState }) => {
+const SearchWebBar = ({ handleSearch }) => {
+    const [value, setValue] = React.useState("")
+    const handleChange = (event, value) => {
+      console.log({event:event.target.value, value:value})
+      setValue(event.target.value)
+    }
     const theme = useTheme();
     return (
       <Box
@@ -115,14 +129,17 @@ const SearchWebBar = ({ popupState }) => {
       >
         <InputBase
         fullWidth={true}
+          value={value}
+          onChange={handleChange}
           sx={{ ml: 2, flex: 1 }}
           placeholder="Search Products"
-          inputProps={{ "aria-label": "search products" }}
+          // inputProps={{ "aria-label": "search products" }}
         />
-        <IconButton  type="submit" sx={{ p: "10px" }} aria-label="search">
+        <Link to={value!==""?"/products":"#"}>
+        <IconButton  type="submit" sx={{ p: "10px" }} aria-label="search"  onClick={()=>handleSearch(value)}>
           <SearchIcon />
         </IconButton>
-        
+        </Link>
       </Box>
     );
   };
@@ -130,6 +147,15 @@ const SearchWebBar = ({ popupState }) => {
 
 
 const NewSearch = ({ classes }) => {
+
+  const dispatch = useDispatch()
+  const handleSearch = (value) => {
+      dispatch(filterActions.setSearchField(value))
+      // dispatch(getFilter())
+      // if (value !== ""){
+       ( <Navigate replace to="/products"/>)
+      // }
+  }
   return (
     <>
       <Box sx={{ display: { xs: "block", sm: "none" } }}>
@@ -137,8 +163,8 @@ const NewSearch = ({ classes }) => {
           {(popupState) => (
             <>
               <Box  >
-                <IconButton {...bindToggle(popupState)}
-                  sx={{ backgroundColor: "grey", border: "1.5px solid orange",  position: 'absolute', right: '20%', bottom: '18px'  }}
+                <IconButton {...bindToggle(popupState)} size="medium"
+                  sx={{backgroundColor: "grey",  position: 'absolute', right: '20%', bottom: '18px',transform:'scale(1.2)'}}
                 >
                   {" "}
                   <SearchIcon />{" "}
@@ -171,7 +197,7 @@ const NewSearch = ({ classes }) => {
       </Box>
 
       <Box sx={{ display: { xs: "none", sm: "block" } }}>
-        <SearchWebBar />
+        <SearchWebBar handleSearch={handleSearch} />
       </Box>
     </>
   );

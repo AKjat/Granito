@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import Context from './context/Context';
-import {createStore, } from 'redux';
 import {Provider} from 'react-redux';
 import store from './redux';
 
@@ -12,9 +10,9 @@ import store from './redux';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Context>
-    <Provider store = {store} ><App /></Provider>,
-    </Context>
+    {/* <Context> */}
+    <Provider store = {store} ><App /></Provider>
+    {/* </Context> */}
   </React.StrictMode>,
   document.getElementById('root')
 );

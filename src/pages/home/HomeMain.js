@@ -1,24 +1,75 @@
 import { Box, Button, Card, Divider, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import React from "react";
-import ProductCard from "../../components/product/ProductCard";
-import ImgCarousel from "../../components/Ui/ImgCarousel";
+import React, {useEffect} from "react";
 import ImgSlider from "../../components/Ui/ImgSlider";
 import HomeGridCarousel from "../../components/Categories/HomeGridCarousel";
-import Carousel from "react-grid-carousel";
-import Slide from "../../components/Slide/Slide";
-import Product from "../../components/product/Product";
-import { Masks, Title } from "@mui/icons-material";
-import MultiItem from "../../components/Carousel/MultiItem";
 import { Link } from "react-router-dom";
-
+import axios from 'axios'
+import { baseURL } from "../../api/baseURL";
 const useStyles = makeStyles((theme) => ({
   root: {
     height: "400px",
   },
+  tagBox: {
+    marginTop:theme.spacing(2),
+    marginBottom:theme.spacing(0.2), 
+    boxShadow:"0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)", 
+    padding:theme.spacing(1), 
+    marginLeft:theme.spacing(1), 
+    marginRight:theme.spacing(1),
+    
+    "& .MuiBox-root":{
+      display:"flex" ,
+      justifyContent:"space-between" ,
+      alignItems:"center",
+      marginBottom: theme.spacing(1),
+      // borderRadius: theme.spacing(1),
+      borderColor: theme.palette.primary.main ,
+      borderLeftStyle:"solid",
+      border: theme.spacing(1),
+      paddingLeft:theme.spacing(1)
+    }
+  }
 }));
 
 function HomeMain(props) {
+  const [mostDemanding, setMostDemanding] = React.useState([])
+  const [newArrival, setNewArrival] = React.useState([])
+  const [loading, setLoading] = React.useState(true)
+  useEffect(() => { 
+    getProducts()
+    
+  }, []);
+  
+  const getProducts = () => {
+    axios.get(`products/`)
+    .then((response)=>{
+      const allproducts = response.data.results
+      console.log(allproducts)
+      setMostDemanding(allproducts.filter((d)=>d.tag.name === "Most Demanding"))
+      setNewArrival(allproducts.filter((d)=>d.tag.name === "Newly Arrival"))
+      setLoading(false)
+    })
+  }
+
+//   useEffect(() => {
+//     const url = "http://localhost:8000/api/products/";
+
+//     const fetchData = async () => {
+//       try {
+//         const response = await fetch(url);
+//         const json = await response.json();
+//         // console.log(json)
+//         // console.log(json.filter((item)=>{return item.tag.name === "Newly Arrival"}));
+//         setMostDemanding(json.filter((item)=>{return item.tag.name === "Most Demanding"}))
+//         setNewArrival(json.filter((item)=>{return item.tag.name === "Newly Arrival"}))
+//       } catch (error) {
+//         console.log("error", error);
+//       }
+      
+//     };
+//     fetchData();
+// }, []);
   // const filterItem=(categ)=>{
   //   props.handleCateg(categ)
   //       console.log(categ)
@@ -28,26 +79,27 @@ function HomeMain(props) {
     <Box  marginTop={0.05} >
       {/* <Slide/> ---> landing Page Slider with play and pause */}
       <ImgSlider />
-      <Box marginTop={2} marginBottom={0.2} boxShadow={10} paddingBottom={1} marginLeft={1} marginRight={1}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" marginLeft={2} marginRight={2} marginBottom={1}>
+      <Box className={classes.tagBox} >
+        <Box  >
         <Typography variant="h5" component="h5" align="center">
           Newly Arrivals 
         </Typography>
         <Button variant="outlined" component={Link} to="/products" >View All</Button>
         </Box>
         <Divider/>
-      <HomeGridCarousel data={props.NewArrival} />
+      <HomeGridCarousel item={newArrival} loading={loading} />
       </Box>
 
-      <Box marginTop={2} marginBottom={0.2} boxShadow={10} paddingBottom={1} marginLeft={1} marginRight={1}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" marginLeft={2} marginRight={2} marginBottom={1}>
+      <Box className={classes.tagBox}>
+        
+      <Box  >
         <Typography variant="h5" component="h5" align="center">
           Most Demanding
         </Typography>
-        <Button variant="outlined">View All</Button>
+        <Button variant="outlined" component={Link} to="/products">View All</Button>
         </Box>
         <Divider/>
-      <HomeGridCarousel data={props.MostDemanding} />
+      <HomeGridCarousel item={mostDemanding} loading={loading}/>
       </Box>
 
       {/* <Box>

@@ -6,11 +6,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { Box, Button, CardActionArea, CardActions, colors, Divider, Grid, Skeleton } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import ProductDialogue from '../Ui/ProductDialogue';
 import {useState} from 'react';
-import productDetails from '../../data/Details';
-import { alpha } from '@mui/material/'
-import { CartState } from '../../context/Context';
 
 
 const useStyles = makeStyles((theme)=>({
@@ -28,55 +24,57 @@ const useStyles = makeStyles((theme)=>({
     box: {
         display: "flex",
         alignItems: "center",
-        "& img": {
-            marginLeft: "10px"
-        }
+        
+        
     }
 }))
 
 function Product(props) {
-  const {id, name, type, price, color,img} = props.d
+  const d = props.d
     const classes = useStyles();
-    const { state: {products} } = CartState();
     
   const [open, setOpen] = useState(false);
   const handleClickOpen=()=>{
       setOpen(true)
   }
-  const { loading = false } = props;
-
+  // const { loading = false } = props;
+  const loading = props.loading
+  
   return (
     
       
       
     <Card className={classes.root} raised={true} sx={{ maxWidth: 200, overflow: 'hidden', borderRadius: "8px", }} elevation={1}>
-    <CardActionArea LinkComponent={Link} to={`/products/${id}`}  >
+    <CardActionArea LinkComponent={Link} to={`/product/${d.id}`}  >
     {/* onClick={() => props.Render({id, name, type, price, color,img ,units: 1})} */}
       <Box >
-      
-        {loading?(<Skeleton variant='rectangular' width="200" height="150px"><CardMedia /></Skeleton>):(<CardMedia
+        <CardMedia
         component="img"
         height="150"
         width='200'
-        image={props.d.img}
-        alt="green iguana"
-      />)}
+        image={d.images[0]?.image}
+        alt={d.name}
+      />
       
       
       </Box>
       <CardContent className={classes.cardC} >
-      {loading?(<Skeleton  width="200" ></Skeleton>):(<Typography className={classes.typo1} gutterBottom variant="h6" component="div">
-          {props.d.name}
-        </Typography>)}
+      <Typography className={classes.typo1} gutterBottom variant="h6" component="div">
+          {d.name}
+        </Typography>
         
         <Divider/>
         <Box className={classes.box}>
           <Typography  variant="body2" >
           Color:
           </Typography>
-        <img src="img/cblack.jpg" height="20px" alt="cblack" />
-        </Box>  
-        <Typography variant="body2">Price: </Typography>     
+          <Box sx={{height: "15px", marginLeft:1 ,width: "15px", borderRadius:"100%", border:"1px solid", backgroundColor: `${d.color.name}`}}></Box>
+        </Box> 
+        <Box className={classes.box} marginTop={1}>
+        <Typography variant="body2">Price:  </Typography>     
+          <Typography variant="body1" sx={{ml: 1}} >{d.price} ₹</Typography>
+          </Box>
+        
       </CardContent>
     </CardActionArea>
     {/* <CardActions>

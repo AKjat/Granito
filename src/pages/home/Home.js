@@ -58,13 +58,8 @@ const Home = (props) => {
     
       
       <Box>
-      <HomeMain items={props.items} NewArrival={props.NewArrival} MostDemanding={props.MostDemanding} />
-      </Box>
-      
-      
-      
-     
-    
+      <HomeMain  />
+      </Box> 
   );
 };
 

@@ -7,33 +7,26 @@ import {
   Divider,
   Typography,
   Button,
-  Container,
-  TextField,
   Collapse,
   Alert,
   IconButton,
+  Skeleton,
+  Container
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import ReactImageMagnify from 'react-image-magnify';
-import ImageSelector from "../../components/Ui/layout/ImageSelector";
-import { SideBySideMagnifier } from "react-image-magnifiers";
+
 import ProductDetails from "./ProductDetails";
 import "./ProductPage.css";
 
 import ImagSelect from "./imagepick/ImagSelect";
-import Product from "../../components/product/Product";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import Breadcrumb from "./components/Breadcrumb";
-
 import SpecialReqDialog from "./components/SpecialReqDialog";
-
-
-import { CartState } from "../../context/Context";
-import { useDispatch } from "react-redux";
-import { actions, cartActions } from "../../redux";
-;
-
-// import { addCart, deleteCart  } from "../../redux/actions/cart/cartActions";
+import { useDispatch, useSelector } from "react-redux";
+import { cartActions, transportActions } from "../../redux";
+import axios from 'axios';
+import Product from "../../components/product/Product"
+import { baseURL } from "../../api/baseURL";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -45,7 +38,29 @@ const useStyles = makeStyles((theme) => ({
       display: "block",
     },
   },
+  relatedBox: {
+    marginTop:theme.spacing(2),
+    marginBottom:theme.spacing(0.2), 
+    boxShadow:"0px 6px 6px -3px rgba(0,0,0,0.2),0px 10px 14px 1px rgba(0,0,0,0.14),0px 4px 18px 3px rgba(0,0,0,0.12)", 
+    padding:theme.spacing(1), 
+    marginLeft:theme.spacing(1), 
+    marginRight:theme.spacing(1),
+    
+    "& .css-iqyuzw":{
+      display:"flex" ,
+      justifyContent:"space-between" ,
+      alignItems:"center",
+      marginBottom: theme.spacing(1),
+      // borderRadius: theme.spacing(1),
+      borderColor: theme.palette.primary.main ,
+      borderLeftStyle:"solid",
+      border: theme.spacing(1),
+      paddingLeft:theme.spacing(1)
+    }
+  }
 }));
+
+
 
 
 const SuccessReq =({success, setSuccess})=>{
@@ -68,64 +83,91 @@ const SuccessReq =({success, setSuccess})=>{
           }
           sx={{ mb: 2 }}
         >
-          Your Request has been sent. 
+          Your Request has been sent.
         </Alert>
       </Collapse>
     </>
   );
 }
 const ProductPage = (props) => {
- 
   
-  let {  id } = useParams();
   
-  const { state: {products} } = CartState();
-   const selectedProduct = products.filter(x => x.id === id)
-   const { name, img, price} = selectedProduct[0]
-   
-  const [success, setSuccess] = React.useState(false);
-  const [qty, setQty] = React.useState(10);
-  const handleChange = (event) => {
-    setQty(event.target.value);
-  };
-  let quantity = parseFloat(qty)
-  
-  const classes = useStyles();
-
- 
-  
+  let { id } = useParams();
+  let id1 = parseFloat(id)
+  const [product, setProduct] = useState()
+  const [relatedProducts, setRelatedProducts] = useState()
+  const [category, setCategory] = useState()
+  const [loading, setLoading] = useState(true)
   const dispatch = useDispatch();
-  const handleAddCart= () => {
-    dispatch(cartActions.addCart({
-      id,
-      name,
-      img,
-      price,
-      quantity,
-    }))
-  }
-  // myArray.filter(x => x.id === '45').map(x => x.foo);
   
-//   function isNumber(evt) {
-//     evt = (evt) ? evt : window.event;
-//     var charCode = (evt.which) ? evt.which : evt.keyCode;
-//     if (charCode > 31 && (charCode < 48 || charCode > 57)) {
-//         return false;
-//     }
-//     return true;
-// }
- 
+  //  const selectedProduct = products.filter(x => x.id === id)
+  //  const { name, img, price} = selectedProduct[0]
+   const costEstimate = useSelector(state=> state.transportEstimate.cost)
+   
+   
+   const classes = useStyles();
+   
+  //  const baseURL = "http://localhost:8000/api/"
+   useEffect(() => { 
+    getProduct()
+    
+  }, [id]);
+   useEffect(() => { 
+     if(category !== undefined){
+      getRelatedProducts()
+     }
+     else return
+    
+    
+  }, [category,id]);
+
+  const getRelatedProducts = () => {
+    axios.get(`products/?category=${category}`)
+    .then((response)=>{
+      const p = response.data.results
+      const rProducts = p.sort(() => Math.random() - 0.5)
+      setRelatedProducts(rProducts)
+    })
+    
+  }
+  console.log("related", relatedProducts)
+
+  const getProduct = () => {
+    axios.get(`products/${id}`)
+    .then((response)=>{
+      const product = response.data
+     
+      setCategory(product.category.id)
+      setProduct(product)
+      setLoading(false)
+    })
+    
+  }
+  console.log(product?.category?.name)
+  
+  
+  const [success, setSuccess] = React.useState(false);
+  
+  const handleAddCart= () => {
+    dispatch(cartActions.addCart({id, price:product?.price, quantity:product?.quantity}))
+  }
+
+  
+
+
+  
 
   return (
     <>
     <Box sx={{ marginLeft: "10px", marginRight: "10px",}} >
       {/* <HomeCateg/> */}
       <Box marginX={1} marginTop={2}>
-        <Breadcrumb name={name} />
+        { <Breadcrumb name={product?.name}/> }
+        
         <Grid container marginTop={1}>
           <Grid item xs={12} lg={6} marginTop="10px" >
-            <ImagSelect data={props.NewArrival} selectedProduct={selectedProduct[0]} />
-            
+            <ImagSelect  product={product} loading={loading} />
+        
             {/* <ImgPick/> */}
           </Grid>
           <Divider
@@ -135,7 +177,7 @@ const ProductPage = (props) => {
           />
           <Grid marginLeft={1} sx={{marginTop: "10px"}} item xs={12} lg={5}>
           <SuccessReq success={success} setSuccess={setSuccess}/>
-            <ProductDetails  selectedProduct={selectedProduct[0]} />
+            <ProductDetails  product={product} loading={loading}/>
 
             <Box marginTop={1}>
               <Typography variant="body2">Available offers</Typography>
@@ -146,7 +188,7 @@ const ProductPage = (props) => {
             </Box>
             
             <Divider />
-            <Box display='flex' alignItems='center' justifyContent='space-around' marginTop={1}>
+            {/* <Box display='flex' alignItems='center' justifyContent='space-around' marginTop={1}>
               <Typography variant='body1'> Enter Your Quantity: </Typography>
               <TextField
                 size="small"
@@ -159,7 +201,7 @@ const ProductPage = (props) => {
                 helperText="/ Square Feet"
                 required
               />
-            </Box>
+            </Box> */}
 
             <Grid
               container
@@ -167,11 +209,7 @@ const ProductPage = (props) => {
               justifyContent="space-around"
             > 
               
-              <Button variant="contained" onClick={handleAddCart}  >Add to truck</Button>
-              
-              <Button variant="outlined">
-                Call 
-              </Button>
+              <Button variant="contained" onClick={handleAddCart} >Add to truck</Button>
               {/* <Button variant="outlined">Special Request*</Button> */}
               <SpecialReqDialog setSuccess={setSuccess} />
             </Grid>
@@ -180,15 +218,13 @@ const ProductPage = (props) => {
       </Box>
       </Box>
       <Box  >
-        <Box >
-        <Box display="flex" marginLeft={2} marginTop={5} marginBottom={1} justifyContent="center" >
+        <Box className={classes.relatedBox}>
+        <Box display="flex" marginLeft={2}  >
           <Typography variant="h5" alignSelf='center'>Related Products</Typography>
         </Box>
-        </Box>
-        
-        <Container >
-        <Grid container spacing={2}>
-        {props.items.slice(0, 4).map((d, index) => (
+        <Divider/>
+        <Grid container spacing={2} padding={1}>
+        {relatedProducts?.slice(0, 4).map((d, index) => (
                 <Grid item key={index} xs={6} md={4} lg={3}   padding={0}>
                   <Product
                     d={d} 
@@ -196,6 +232,11 @@ const ProductPage = (props) => {
                 </Grid>
               ))}
         </Grid>
+        </Box>
+        
+
+        <Container >
+        
         </Container>
       </Box>
     

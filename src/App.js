@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import {  createTheme, ThemeProvider } from "@mui/material";
+import {  Box, createTheme, ThemeProvider} from "@mui/material";
 import Home from './pages/home/Home';
 import Header from './components/header/Header';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { orange, red } from '@mui/material/colors';
-import MobileAppbar from './components/mobileNavigation/MobileAppbar';
 import ProductPage from './pages/product/ProductPage';
 import Filterpage from './pages/home/filter/Filterpage';
 import HomeCateg from './components/categlist/HomeCateg';
@@ -14,9 +13,14 @@ import Footer from './components/main/Footer';
 import NewArrival from "./data/NewArrival";
 import MostDemanding from "./data/MostDemanding"
 import CartPage from './pages/cart/CartPage';
+import ScrollToTop from './ScrollToTop';
+import SignIn from './pages/login/SignIn';
+import { useSelector } from 'react-redux';
+import NewProduct from './pages/addNewProduct/NewProduct';
+import { makeStyles } from '@mui/styles';
+import TransportEstimate from './pages/transportEstimate/TransportEstimate';
+import axios from 'axios';
 
-import { CartState } from './context/Context';
-// import SignInPage from './pages/SignIn/SignInPage';
 
 const theme = createTheme({
   palette: {
@@ -42,51 +46,87 @@ const theme = createTheme({
   },
   
 });
+
+const useStyles= makeStyles((theme)=>({
+  mobileView: {
+       
+      
+      // [theme.breakpoints.down('md')]: {
+      //     display: 'block'
+      //   },
+      //   [theme.breakpoints.up('md')]: {
+      //     display: 'none'
+      //   }
+  },
+  
+}))
+
 function App(props) {
-  const {cart,product, addToCartAction, updateCartUnits, RenderProduct} = props;
-  // const [items, setItems] = useState(productDetails);
-  // const AllItems = productDetails.concat(NewArrival) 
+  const classes = useStyles()
+  // const {cart,product, addToCartAction, updateCartUnits, RenderProduct} = props;
+  
   const AllItems = [...productDetails, ...NewArrival, ...MostDemanding ];
   // const AllItems = [...AllIte, ...MostDemanding]
   const [items, setItems] = useState(AllItems);
-  // console.log(productDetails)
-  console.log(AllItems)
-  // console.log(NewArrival)
-  const handleCateg = (categ) => {
-    const updatedItems = productDetails.filter((curElem) => {
-      return curElem.type === categ;
-    });
-    setItems(updatedItems);
-  };
-  const handleAll = (cat) => {
-    const pdetails = productDetails.filter((curElem) => {
-      return curElem;
-    });
-    setItems(pdetails);
-  };
- 
- 
   
+  axios.defaults.baseURL = 'http://192.168.1.21:8000/api/'
+  // console.log(productDetails)
+ 
+  // console.log(NewArrival)
+ 
+
+  // const handleCateg = (categ) => {
+  //   const updatedItems = productDetails.filter((curElem) => {
+  //     return curElem.type === categ;
+  //   });
+  //   setItems(updatedItems);
+  // };
+  // const handleAll = (cat) => {
+  //   const pdetails = productDetails.filter((curElem) => {
+  //     return curElem;
+  //   });
+  //   setItems(pdetails);
+  // };
+  
+  
+
+  // const isLoggedIn = useSelector(state=> state.login.isloggedIn)
+  // console.log(isLoggedIn)
   return (
     <Router>
       {/* <Sidebar /> */}
       <ThemeProvider theme={ theme } >
+        <ScrollToTop/>
       <Header />
-      <HomeCateg handleCateg={handleCateg} handleAll={handleAll}/>
+      <HomeCateg />
         <Routes>
+          
         {/* <Route exact path="/login*" element={<SignInPage/>} /> */}
-          <Route exact path="*" element={<Home handleCateg={handleCateg} items={items} NewArrival={NewArrival} MostDemanding={MostDemanding}/>} />
           
-          <Route exact path="/products/:id/*" element={<ProductPage items={items} addToCartAction={addToCartAction} product={product} />} />
+          <Route exact path="*" element={<Home />} />
           
-          <Route exact path="/products" element={<Filterpage items={items} RenderProduct={RenderProduct} />} />
-          <Route exact path="/cart" element={<CartPage updateCartUnits={updateCartUnits} cart={cart}/>} />
+          <Route exact path="/product/:id" element={<ProductPage />} />
+          
+          <Route exact path="/products/" element={<Filterpage />} />
+            <Route exact path="/login" element={<SignIn/>} />
+          {/* <Route exact path="/cart" element={isLoggedIn? <CartPage />:<SignIn/>} /> */}
+          <Route exact path="/cart" element={<CartPage />} />
+          <Route exact path="/addproduct" element={<NewProduct/>} />
+          <Route exact path="/transportEstimate" element={<TransportEstimate/>} />
+          
           {/* <Route exact path="/products/filter" element={<Filterpage />} /> */}
           {/* <Route exact path="/products" element={<ProductPage />} />
           <Route exact path="/products/productdetails" element={<ProductDetails />} /> */}
         </Routes>
-        {/* <Footer/> */}
-        <MobileAppbar />
+        <Footer/>
+        
+        {/* <ScrollTop {...props}>
+        <Fab color="secondary" size="small" aria-label="scroll back to top">
+          <KeyboardArrowUpIcon />
+        </Fab>
+      </ScrollTop> */}
+        
+        {/* <MobileAppbar /> */}
       </ThemeProvider>
     </Router>
   );

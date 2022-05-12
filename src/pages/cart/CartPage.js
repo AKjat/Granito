@@ -12,13 +12,13 @@ import {
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import React, { useEffect, useState } from "react";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-import { CartState } from "../../context/Context";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CloseIcon from "@mui/icons-material/Close";
+import { Link } from "react-router-dom"
 import SingleCart from "./SingleCart";
 import { useSelector } from "react-redux";
+import AddressChange from "./components/AddressChange";
+import { DeleteForever } from "@mui/icons-material";
+import axios from "axios";
+import { baseURL } from "../../api/baseURL";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -72,7 +72,7 @@ const EmptyCart = () => {
             <Box width={200} height={200}>
               <img
                 style={{ objectFit: "cover", width: "100%", height: "100%" }}
-                src="img/cart/emptyCart.jpg"
+                src="img/cart/emptyCart1.jpg"
                 alt=""
               />
             </Box>
@@ -87,7 +87,7 @@ const EmptyCart = () => {
             >
               <Typography>Your Order List is Empty</Typography>
               <Box marginTop={4}>
-                <Button variant="outlined">See Products</Button>
+                <Button variant="outlined" LinkComponent={ Link } to="/products">See Products</Button>
               </Box>
             </Box>
           </Box>
@@ -102,6 +102,8 @@ const CartPage = () => {
   const classes = useStyles();
   const [addr, setAddr] = useState(false);
   const cart = useSelector((state)=> state.cart.itemList)
+  const quantity = useSelector(state=>state.cart.totalQuantity)
+  
   let total=0;
   cart.forEach((item)=>{
     total+=item.totalPrice
@@ -112,141 +114,82 @@ const CartPage = () => {
   return (
     <>
       <Box marginTop={2} marginLeft={2} marginRight={2}>
-        {/* <EmptyCart /> */}
-        <Grid container justifyContent="space-evenly">
+        {quantity===0 ? <EmptyCart/> : 
+                      <Grid container justifyContent="space-evenly">
                 
-                <Grid item xs={12} md={8} >
-                    <Paper elevation={1} sx={{ padding:"1px !important"}} >
-                        <Typography padding={1}>Your Order List</Typography>
-                        <Divider/>
-                        
-                        <Box className={classes.hideM}>
-                        <Grid container direction="column" >
-                            <Grid item>
-                              <Grid container sx={{backgroundColor: "buttonFace"}}>
-                                  <Grid item xs={2}></Grid>
-                                  <Grid item xs={3}><Typography variant="body1" > Product </Typography></Grid>
-                                  <Grid item xs={2}><Typography variant="body1" > Price </Typography></Grid>
-                                  <Grid item xs={3}><Typography variant="body1" > Quantity </Typography></Grid>
-                                  <Grid item xs={2}><Typography variant="body1" > SubTotal </Typography></Grid>
-                              </Grid>
-                            </Grid>
-
-
-                        </Grid>
-                      </Box>
-                      <Box sx={{height: "400px", overflow: "scroll"}}>
-                        {cart.map((d, index)=>(
-                          <SingleCart key={index} d={d}/>
-                        ))}
-                            {/* {products.slice(0, 10).map((d, index)=>(
-                              <SingleCart key={index} d={d}/>
-                            ))} */}
-                            </Box>
-                    </Paper>
-                </Grid>
-                <Grid item xs={12} md={3} className={classes.priceDetails}>
-                        <Paper elevation={1} sx={{height: "400px"}}>
-                        <Typography padding={1}>Price Details</Typography>
-                        <Divider/>
-                        <Box padding={4} >
-                        <Grid container >
-                            <Grid item xs={6}><Typography fontSize="medium">SubTotal</Typography></Grid>
-                            <Grid item xs={6}><Typography color="green">₹{total}</Typography>
+                      <Grid item xs={12} md={8} >
+                          <Paper elevation={1} sx={{ padding:"1px !important"}} >
+                              <Typography padding={1}>Your Order List</Typography>
+                              <Divider/>
                               
-                            </Grid>
-                        </Grid>
-                        <Grid container marginTop={2} >
-                            <Grid item xs={6}><Typography fontSize="medium">Shipping Cost</Typography></Grid>
-                            <Grid item xs={6}><Typography color="green">₹1850</Typography>
-                                <Typography variant="caption" onClick={()=>setAddr(!addr)} >Shipping to Rajasthan</Typography>
-                                <Collapse in={addr}>
-                                <Button>change Address</Button>
-                                </Collapse>
-                            </Grid>
-                        </Grid>
-                        <Grid container >
-                            <Grid item xs={6}><Typography fontSize="medium">GST 18%</Typography></Grid>
-                            <Grid item xs={6}><Typography color="green">₹200.5</Typography></Grid>
-                        </Grid>
-                        <Grid container >
-                            <Grid item xs={6}><Typography fontSize="medium">Total</Typography></Grid>
-                            <Grid item xs={6}><Typography color="green">₹200000.5</Typography></Grid>
-                        </Grid>
-                        </Box>
-                        
-                        </Paper>
-                </Grid>
-            </Grid>
+                              <Box className={classes.hideM}>
+                              <Grid container direction="column" >
+                                  <Grid item>
+                                    <Grid container sx={{backgroundColor: "buttonFace"}}>
+                                        <Grid item xs={2}></Grid>
+                                        <Grid item xs={3}><Typography variant="body1" > Product </Typography></Grid>
+                                        <Grid item xs={2} display="flex" alignItems="end"  >
+                                        <Typography variant="body1" > Price  </Typography>
+                                        <Typography variant="caption" > /sq foot  </Typography>
+                                        </Grid>
+                                        <Grid item xs={3}><Typography variant="body1" > Quantity </Typography></Grid>
+                                        <Grid item xs={2}><Typography variant="body1" > SubTotal </Typography></Grid>
+                                    </Grid>
+                                  </Grid>
+      
+      
+                              </Grid>
+                            </Box>
+                            <Box sx={{height: "400px", overflow: "scroll"}}>
+                              {cart.map((d, index)=>(
+                                <SingleCart key={index} d={d}/>
+                              ))}
+                                  {/* {products.slice(0, 10).map((d, index)=>(
+                                    <SingleCart key={index} d={d}/>
+                                  ))} */}
+                                  </Box>
+                          </Paper>
+                      </Grid>
+                      <Grid item xs={12} md={3} className={classes.priceDetails}>
+                              <Paper elevation={1} sx={{height: "400px"}}>
+                              <Typography padding={1}>Price Details</Typography>
+                              <Divider/>
+                              <Box padding={4} >
+                              <Grid container >
+                                  <Grid item xs={6}><Typography fontSize="medium">SubTotal</Typography></Grid>
+                                  <Grid item xs={6}><Typography color="green">₹{total}</Typography> 
+                                  </Grid>
+                              </Grid>
+                              <Grid container marginTop={2} >
+                                  <Grid item xs={6}><Typography fontSize="medium">Shipping Cost</Typography>
+                                  <AddressChange/>
+                                  {/* <Button size="small" >change Address</Button> */}
+                                  </Grid>
+                                  <Grid item xs={6}><Typography color="green">₹1850</Typography>
+                                      <Typography variant="caption" onClick={()=>setAddr(!addr)} >Shipping to Rajasthan, India (305801)</Typography>
+                                      
+                                      
+                                      
+                                  </Grid>
+                              </Grid>
+                              <Grid container >
+                                  <Grid item xs={6}><Typography fontSize="medium">GST 18% </Typography></Grid>
+                                  <Grid item xs={6}><Typography color="green">₹{total*18/100}</Typography></Grid>
+                              </Grid>
+                              <Grid container >
+                                  <Grid item xs={6}><Typography fontSize="medium">Total</Typography></Grid>
+                                  <Grid item xs={6}><Typography color="green">₹{total+1850+total*18/100}</Typography></Grid>
+                              </Grid>
+                              </Box>
+                              
+                              </Paper>
+                      </Grid>
+                  </Grid>
+        }
+        {/* <EmptyCart /> */}
+        
       </Box>
-      {/* <Box marginTop={2} marginLeft={2} marginRight={2}>
-        <Grid container justifyContent="space-evenly">
-          <Grid item xs={12} md={8}>
-            <Paper elevation={1} sx={{ height: "400px" }}>
-              <Typography padding={1}>Your Order List</Typography>
-              <Divider />
-              <Grid container direction="column">
-                <Grid item>
-                  <Grid
-                    container
-                    alignItems=""
-                    spacing={1}
-                    marginLeft={1}
-                    marginTop={1}
-                  >
-                    <Grid item xs={3}>
-                      <Box
-                        className={classes.imgBox}
-                        borderRadius={10}
-                        sx={{ height: "80px", width: "100px",  }}
-                      >
-                        <img src="img/product/AlaskaGold/1.jpg" alt="" />
-                      </Box>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Box>
-                        <Typography> Alaska Gold </Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={2}>
-                      <Box>
-                        <Typography>₹{"  "}517</Typography>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </Grid>
-                <Grid item>
-                  <Grid container justifyContent="space-evenly">
-                    <Grid item>
-                      <TextField
-                        sx={{ width: "50%" }}
-                        label="Quantity"
-                        size="small"
-                        type="number"
-                        value="1"
-                        InputLabelProps={{ shrink: true }}
-                      />
-                    </Grid>
-                    <Grid item>
-                      <Box>
-                        <Button variant="outlined" startIcon={<DeleteIcon />}>
-                          Remove
-                        </Button>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={3} className={classes.priceDetails}>
-            <Paper elevation={1} sx={{ height: "400px" }}>
-              <Typography padding={1}>Price Details</Typography>
-              <Divider />
-              </Paper>
-          </Grid>
-        </Grid>
-      </Box> */}
+      
     </>
   );
 };
